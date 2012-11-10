@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Submit Pre-Release Job for {{distro}}{% endblock %}
+
+{% block js %}
+<script src="/static/js/ajax_functions.js" type="text/javascript" charset="utf-8"></script>
+{% endblock %}
+
+<form action="" method="post" id="submit_job_form" accept-charset="utf-8">{%csrf_token %}
+{% block content %}
+<div id="div_1" class="cloned_div">
+  <select id="select_1" onchange="get_version(this.id, this.value, '{{distro}}')">
+    <option value="0">Select...</option>
+    {% for repo in repo_list %}
+    <option value="{{repo}}">{{repo}}</option>
+    {% endfor %}
+  </select>
+  <select id="version_1"></select>
+  <span id="loader_1" style="display:none">...</span>
+</div>
+<input id="btn_add" type="button" value="+" onclick="add_dropdown()"/>
+<input id="btn_del" type="button" value="-" onclick="delete_dropdown()"/>
+</form>
+
+{% endblock %}

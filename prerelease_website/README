@@ -1,0 +1,13 @@
+- Make sure to install dajax and dajaxice http://www.dajaxproject.com/
+
+- Make sure to use static files (https://docs.djangoproject.com/en/dev/howto/static-files)
+  https://docs.djangoproject.com/en/1.3/howto/static-files/#with-a-template-tag
+
+- Update static content to be served with "python manage.py collectstatic"
+
+- Don't forget to add csrf token to forms that will be used with ajax, also
+  need to make sure to pass RequestContext onto templates
+
+Useful Links:
+Explanation of dajaxice: http://www.pythondiary.com/tutorials/django-and-ajax-dajaxice.html
+If we ever want to compress javascript: http://django_compressor.readthedocs.org/en/latest/usage/#examples
