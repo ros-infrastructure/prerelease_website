@@ -142,7 +142,7 @@ INSTALLED_APPS = (
 # the site admins on every HTTP 500 error.
 # See http://docs.djangoproject.com/en/dev/topics/logging for
 # more details on how to customize your logging configuration.
-SITE_ROOT = '/home/eitan/hidof/willow/prerelease_website/prerelease_website'
+SITE_ROOT = os.path.dirname(__file__)
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -160,7 +160,7 @@ LOGGING = {
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': SITE_ROOT + '/logfile',
+            'filename': os.path.join(SITE_ROOT, 'logfile'),
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
