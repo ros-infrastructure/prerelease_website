@@ -6,6 +6,7 @@ INSTALLATION
 RUNNING
 - Update static content to be served with "python manage.py collectstatic"
 - python manage.py runserver YOUR_IP_ADDRESS:8000
+- Open a browser to http://YOUR_IP_ADDRESS:8000/prerelease/submit_job/groovy
 
 DJANGO NOTES
 - Make sure to use static files (https://docs.djangoproject.com/en/dev/howto/static-files)
