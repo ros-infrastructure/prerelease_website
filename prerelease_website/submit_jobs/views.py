@@ -4,13 +4,13 @@ from django.template import RequestContext
 
 import logging
 
-logger = logging.getLogger('submit_jobs')
+logger = logging.getLogger('create_jobs')
 
-def index(request):
-    return render_to_response('index.html', {})
+def select_distro(request):
+    return render_to_response('select_distro.html', {})
 
 
-def submit_job(request, distro):
+def create_job(request, distro):
     dry_distro = DryRosDistro(distro)
     repo_list = dry_distro.get_info()
     print "Got dry repo list"
@@ -23,6 +23,8 @@ def submit_job(request, distro):
             repo_list[name] = d
         print "Got wet repo list"
 
-    return render_to_response('submit_job.html',
+    return render_to_response('create_job.html',
                               {'repo_list': repo_list, 'distro': distro},
                               context_instance=RequestContext(request))
+
+
