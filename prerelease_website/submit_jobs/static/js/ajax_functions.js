@@ -76,6 +76,8 @@ function version_cb(data)
 
 function select_repositories(id, distro_select)
 {
+  keys = new Array();
+
   $("#select_"+id).find('option[value!=""]').remove();
   skip_list = get_repo_list();
   for (var repo in repositories){
@@ -86,8 +88,14 @@ function select_repositories(id, distro_select)
       }
       if (!distro_select || repositories[repo]['distro'] == distro_select)
 	  if (!duplicate)
-	      $("#select_"+id).append("<option value="+repo+">"+repo+"</option>")
+	      keys.push(repo);
   }
+
+
+  // add in sorted order
+  keys.sort();
+  for (var i=0; i<keys.length; i++)
+      $("#select_"+id).append("<option value="+keys[i]+">"+keys[i]+"</option>")
 };
 
 
