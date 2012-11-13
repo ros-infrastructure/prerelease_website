@@ -42,14 +42,17 @@ function submit_cb(data)
 
 
 
-function get_version(select_id, repo)
+function get_version(select_id)
 {
-    var id = select_id.split('_')[1]
+    // find repo name
+    var id = select_id.split('_')[1];
+    var repo = $("#select_"+id).val();
 
+    // add versions to dropdown menu
     $("#version_"+id).find('option[value!=""]').remove();
     for (var i=0; i<repositories[repo]['version'].length; i++){
 	var version = repositories[repo]['version'][i];
-	$("#version_"+id).append("<option value="+i+">"+version+"</option>")	
+	$("#version_"+id).append("<option value="+version+">"+version+"</option>")	
     }
 
     // set default value
@@ -57,15 +60,21 @@ function get_version(select_id, repo)
 }
 
 
-function get_version_description(version_id, version)
+function get_version_description(select_id, version)
 {
     // find repo name
-    var id = version_id.split('_')[1];
-    var distro = $("#select_"+id).val();
-    
-    // get url / branch
-    var url = repositories[distro]['url'][version];
-    var branch = repositories[distro]['branch'][version];
+    var id = select_id.split('_')[1];
+    var repo = $("#select_"+id).val();
+
+    // find id of selected version
+    var version_id = 0;
+    for (var i=0; i<repositories[repo]['version'].length; i++)
+	if (repositories[repo]['version'][i] == version)
+	    version_id = i;
+
+    // get url / branch of selected version
+    var url = repositories[repo]['url'][version_id];
+    var branch = repositories[repo]['branch'][version_id];
     if (branch != "")
 	url = url + " --> " + branch
     $('#description_' + id).html(url);
@@ -98,7 +107,7 @@ function select_repositories(id, distro_select)
     
     
     // set default value
-    get_version("select_"+id, keys[0]);  
+    get_version("select_"+id);
 };
 
 
