@@ -19,12 +19,14 @@ class DryRosDistro(object):
         for name, s in self.distro_obj.stacks.iteritems():
             if s.vcs_config.type == 'svn':
                 url = s.vcs_config.anon_dev
+                branch = ""
             else:
                 url = s.vcs_config.repo_uri
-            res[name] = {'distro': [self.distro + "_dry"],
-                         'version': ['latest'],
+                branch = s.vcs_config.dev_branch
+            res[name] = {'distro': self.distro + "_dry",
+                         'version': ["devel"],
                          'url': [url],
-                         'branch': ['branch']}
+                         'branch': [branch]}
         return res
 
 
@@ -47,16 +49,28 @@ class WetRosDistro(object):
 
     def get_info(self):
         res = {}
+        for name in self.devel_file['repositories'].keys() + self.distro_file['repositories'].keys():
+            res[name] = {'distro': self.distro + "_wet", 'version': [], 'url': [], 'branch': []}
+
+        # first add devel
         for name, r in self.devel_file['repositories'].iteritems():
             if not 'version' in r or not r['version']:
-                branch = ""
+                res[name]['branch'].append("")
             else:
-                branch = r['version']
-            res[name] = {'distro': [self.distro + "_wet"],
-                         'version': ['devel'],
-                         'url': [r['url']],
-                         'branch': [branch]}
-        print res
+                res[name]['branch'].append(r['version'])
+            res[name]['version'].append('devel')
+            res[name]['url'].append(r['url'])
+
+        # then add release
+        for name, r in self.distro_file['repositories'].iteritems():
+            res[name]['version'].append('latest')
+            res[name]['url'].append(r['url'])
+            res[name]['branch'].append("release/pkg_name")
+
+            if r['version']:
+                res[name]['version'].append(r['version'].split('-')[0])
+                res[name]['url'].append(r['url'])
+                res[name]['branch'].append("release/pkg_name/"+r['version'].split('-')[0])
         return res
 
 

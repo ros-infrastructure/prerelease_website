@@ -33,70 +33,75 @@ function submit_jobs()
   Dajaxice.submit_jobs.submit_job(submit_cb, {'repositories': repo_list});
 }
 
+
+
 function submit_cb(data)
 {
   console.log("Job submitted");
 }
 
-function get_version(select_id, repo, distro)
+
+
+function get_version(select_id, repo)
 {
     var id = select_id.split('_')[1]
-    $('#version_' + id).hide()
-    $('#description_' + id).hide()
-    $('#loader_' + id).show()
-    Dajaxice.submit_jobs.get_version(version_cb, {'id_num':id, 'repo':repo, 'distro':distro});
+
+    $("#version_"+id).find('option[value!=""]').remove();
+    for (var i=0; i<repositories[repo]['version'].length; i++){
+	var version = repositories[repo]['version'][i];
+	$("#version_"+id).append("<option value="+i+">"+version+"</option>")	
+    }
+
+    // set default value
+    get_version_description("select_"+id, 0);  
 }
 
-function get_version_description(version_id)
+
+function get_version_description(version_id, version)
 {
-  var id = version_id.split('_')[1]
-  //Only show the description that corresponds to the selected
-  //version number
-  $('#description_' + id).children().each(function () {
-    if($(this).attr('name') == $('#version_' + id).val())
-      $(this).show();
-    else
-      $(this).hide();
-  });
+    // find repo name
+    var id = version_id.split('_')[1];
+    var distro = $("#select_"+id).val();
+    
+    // get url / branch
+    var url = repositories[distro]['url'][version];
+    var branch = repositories[distro]['branch'][version];
+    if (branch != "")
+	url = url + " --> " + branch
+    $('#description_' + id).html(url);
 }
 
-function version_cb(data)
-{
-  $('#version_' + data.id).html(data.select_innerHTML);
-  $('#description_' + data.id).html(data.descriptions);
-  $('#loader_' + data.id).hide();
-  $('#version_' + data.id).show();
-
-  //Only show the description that corresponds to the selected
-  //version number
-  get_version_description('#version_' + data.id);
-  $('#description_' + data.id).show();
-}
 
 
 function select_repositories(id, distro_select)
 {
-  keys = new Array();
-
-  $("#select_"+id).find('option[value!=""]').remove();
-  skip_list = get_repo_list();
-  for (var repo in repositories){
-    var duplicate = false
-      for (var i=0; i<skip_list.length; i++){
-	  if (repo == skip_list[i])
-	      duplicate = true
-      }
-      if (!distro_select || repositories[repo]['distro'] == distro_select)
-	  if (!duplicate)
-	      keys.push(repo);
-  }
-
-
-  // add in sorted order
-  keys.sort();
-  for (var i=0; i<keys.length; i++)
-      $("#select_"+id).append("<option value="+keys[i]+">"+keys[i]+"</option>")
+    keys = new Array();
+    
+    $("#select_"+id).find('option[value!=""]').remove();
+    skip_list = get_repo_list();
+    for (var repo in repositories){
+	var duplicate = false
+	for (var i=0; i<skip_list.length; i++){
+	    if (repo == skip_list[i])
+		duplicate = true
+	}
+	if (!distro_select || repositories[repo]['distro'] == distro_select)
+	    if (!duplicate)
+		keys.push(repo);
+    }
+    
+    
+    // add in sorted order
+    keys.sort();
+    for (var i=0; i<keys.length; i++)
+	$("#select_"+id).append("<option value="+keys[i]+">"+keys[i]+"</option>")
+    
+    
+    // set default value
+    get_version("select_"+id, keys[0]);  
 };
+
+
 
 
 function add_dropdown() {
@@ -119,7 +124,6 @@ function add_dropdown() {
 
   $('#version_' + new_num).html('');
   $('#description_' + new_num).html('');
-  $('#description_' + new_num).hide();
 
   var repo_selects = $("#submit_job_form").find(".repo_select");
   select_repositories(new_num, repositories[repo_selects[0].value]['distro']);

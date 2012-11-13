@@ -33,7 +33,14 @@ $(document).ready(function() {
   {% for name, repo in repo_list.items %}
     repositories['{{name}}'] = {}
     {% for key, value in repo.items %}
-      repositories['{{name}}']['{{key}}'] = '{{value}}'
+      repositories['{{name}}']['{{key}}'] = new Array();
+      {% if key == 'distro' %}
+        repositories['{{name}}']['{{key}}'] = '{{value}}'
+      {% else %}
+        {% for v in value %}
+          repositories['{{name}}']['{{key}}'].push('{{v}}');
+        {% endfor %}
+      {% endif %}
     {% endfor %}
   {% endfor %}
   select_repositories(1)
@@ -63,12 +70,11 @@ pre-release build for all repositories at once.
 <input id="email" type="text" value="Notification e-mail address" class="default-value"></input>
 <br><br>
 <div id="div_1" class="cloned_div">
-  <select id="select_1" class="repo_select" onchange="get_version(this.id, this.value, '{{distro}}')">
+  <select id="select_1" class="repo_select" onchange="get_version(this.id, this.value)">
     <option value=0>Loading...</option>
   </select>
-  <select id="version_1" class="version_select" onchange="get_version_description(this.id)"></select>
-  <span id="loader_1" style="display:none">...</span>
-  <div id="description_1" style="display:none">No information</div>
+  <select id="version_1" class="version_select" onchange="get_version_description(this.id, this.value)"></select>
+  <div id="description_1">No information</div>
 </div>
 <input id="btn_add" type="button" value="+" onclick="add_dropdown()"/>
 <input id="btn_del" type="button" value="-" disabled="true" onclick="delete_dropdown()"/>
