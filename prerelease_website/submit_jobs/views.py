@@ -9,6 +9,7 @@ logger = logging.getLogger('submit_jobs')
 def index(request):
     return render_to_response('index.html', {})
 
+
 def submit_job(request, distro):
     dry_distro = DryRosDistro(distro)
     repo_list = dry_distro.get_info()

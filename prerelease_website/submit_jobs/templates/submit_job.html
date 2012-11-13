@@ -44,6 +44,8 @@ $(document).ready(function() {
     {% endfor %}
   {% endfor %}
   select_repositories(1)
+
+  on_email();
 });
 
 
@@ -67,7 +69,7 @@ pre-release build for all repositories at once.
 
 <h2>Select the Repositories to Test</h2>
 <form action="" method="post" id="submit_job_form" accept-charset="utf-8">{%csrf_token %}
-<input id="email" type="text" value="Notification e-mail address" class="default-value"></input>
+<input id="email" type="text" value="email" class="default-value" onchange="on_email(this.value)">  </input>
 <br><br>
 <div id="div_1" class="cloned_div">
   <select id="select_1" class="repo_select" onchange="get_version(this.id)">

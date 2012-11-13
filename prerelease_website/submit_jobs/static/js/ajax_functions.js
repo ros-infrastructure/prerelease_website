@@ -16,7 +16,6 @@ function get_repo_list()
 function submit_jobs()
 {
   var email = $("#email");
-  console.log(email);
   console.log("E-mail: " + email.val());
   repo_list = []
   var repo_selects = $("#submit_job_form").find(".repo_select");
@@ -30,7 +29,9 @@ function submit_jobs()
       repo_list.push({'repo': repo_selects[i].value, 'version': version_selects[i].value});
     }
   }
-  Dajaxice.submit_jobs.submit_job(submit_cb, {'repositories': repo_list});
+  Dajaxice.submit_jobs.submit_job_ajax(submit_cb, {'ros_distro': repositories[repo_list[0]['repo']]['distro'],
+					      'email': email.val(),
+					      'repositories': repo_list});
 }
 
 
@@ -38,6 +39,18 @@ function submit_jobs()
 function submit_cb(data)
 {
   console.log("Job submitted");
+}
+
+
+function on_email(email) { 
+    // check if email is valid
+    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+
+    // enable sumbit button
+    if (re.test(email))
+	$("#btn_submit").attr("disabled", false);
+    else
+	$("#btn_submit").attr("disabled", "disabled");
 }
 
 

@@ -3,12 +3,38 @@ from dajaxice.decorators import dajaxice_register
 from models import WetRosDistro
 from django.utils import simplejson
 import logging
+import subprocess
+
 logger = logging.getLogger('submit_jobs')
 
 @dajaxice_register
-def submit_job(request, repositories):
+def submit_job_ajax(request, email, ros_distro, repositories):
    logger.info(repositories)
+   print "---"
+   print email
+   print ros_distro
+   print repositories
+   print "---"
+   info = ['rosbuild', 'gopr2']
+
+   if ros_distro in ['electric_dry', 'diamondback_dry']:
+      command = 'export ROS_HOME=/tmp && export ROS_PACKAGE_PATH="/home/willow/ros_release:/opt/ros/cturtle/stacks" && export ROS_ROOT="/opt/ros/cturtle/ros" && export PATH="/opt/ros/cturtle/ros/bin:$PATH" && export PYTHONPATH="/opt/ros/cturtle/ros/core/roslib/src" && rosrun job_generation generate_prerelease.py %s %s --repeat 0 --email %s --rosdistro %s'%(info[0], info[1], email, ros_distro)
+
+   elif ros_distro == 'fuerte_dry':
+      command = 'generate_prerelease.py %s %s --repeat 0 --email %s --rosdistro %s'%(info[0], info[1], email, ros_distro)
+
+   elif ros_distro == 'groovy_dry':
+      command = 'generate_groovy_prerelease.py %s %s --repeat 0 --email %s --rosdistro %s'%(info[0], info[1], email, ros_distro)
+
+   elif ros_distro == 'groovy_wet':
+      command = "generate_jenkins_prerelease %s groovy %s"%(email, ' '.join(['%s %s'%(r['repo'], r['version']) for r in repositories]))
+
+   print command
+
+
    return simplejson.dumps({'success': 'true'})
+
+
 
 @dajaxice_register
 def get_version(request, id_num, distro, repo):
