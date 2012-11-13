@@ -5,21 +5,10 @@
 {% block js %}
 <script src="/static/js/ajax_functions.js" type="text/javascript" charset="utf-8"></script>
 <script type="text/javascript">
-/**
- * Written by Rob Schmitt, The Web Developer's Blog
- * http://webdeveloper.beforeseven.com/
- */
- 
-/**
- * The following variables may be adjusted
- */
+var repositories = {}
 var active_color = '#000'; // Colour of user provided text
 var inactive_color = '#336699'; // Colour of default text
- 
-/**
- * No need to modify anything below this line
- */
- 
+
 $(document).ready(function() {
   $("input.default-value").css("color", inactive_color);
   var default_values = new Array();
@@ -38,68 +27,44 @@ $(document).ready(function() {
       }
     });
   });
+
+
+  // Store repositories in js dictionary
+  {% for name, repo in repo_list.items %}
+    repositories['{{name}}'] = {}
+    {% for key, value in repo.items %}
+      repositories['{{name}}']['{{key}}'] = '{{value}}'
+    {% endfor %}
+  {% endfor %}
+  select_repositories(1)
 });
+
+
+
 </script>
 {% endblock %}
 
+
+
+
 {% block content %}
-<h2>Pre-Release stack tests on Jenkins</h2>
+<h2>Pre-Release tests for ROS {{distro}}</h2>
 <p>
-Use this form to create Jenkins jobs that verify if one or more repositories
-are ready to be released. To release multiple repositories that depend on each
-other's changes, you'll need to trigger on single pre-release build for all
-repositories at once.
+Use this site to verify if one or more of your repositories are ready
+to be released in {{distro}}. To release multiple repositories that
+depend on each other's changes, you'll need to trigger on single
+pre-release build for all repositories at once.
 </p>
 
-<img src="/static/images/search.png" />
+<img src="/static/images/{{distro}}.png" />
 
-<h3>What gets tested:</h3>
-<p>
-Jenkins will build your stack plus all released stacks that have a dependency on
-your stack. So you will find out if your own stack works, and if the release of
-your stack breaks any of the already released stacks. The build will happen on
-all the distributions and architectures that are supported by Willow Garage.
-Jenkins will download the branches of your stack that are specified in the
-rosdistro file. In some cases this is trunk, in other cases this is another
-branch. Check the rosdistro file to see which branches will get tested. See
-<a href="http://www.ros.org/wiki/regression_tests">this</a> page for more details.
-</p>
-
-<h3>Why run these tests:</h3>
-<p>
-You should see these Jenkins tests as a powerful tool to help you to avoid the
-embarasment of releasing a broken stack, or worse, from releasing a stack that
-breaks other people's code. While it is acceptable to release a stack that does
-not work on all distributions and architectures that are supported by Willow
-Garage, your stack will be much more useful to the community when it works on
-all supported platforms.
-</p>
-
-<h3>Reproduce test results</h3>
-<p>
-If you're trying to reproduce a failure that only happens on a distro/arch that
-is different from your machine, you can follow <a
-href="http://www.ros.org/wiki/regression_tests/reproducing">these
-instructions</a> to set up a chroot invironment.
-</p>
-
-<h3>Problems:</h3>
-<p>
-If you have any problems with the pre-release tests, you can file a ticket <a
-href="https://code.ros.org/trac/ros/newticket?component=ros_release&type=defect&owner=wim&keywords=prerelease">here</a>.
-</p>
-
-<h2>Run the Tests</h2>
-
+<h2>Select the Repositories to Test</h2>
 <form action="" method="post" id="submit_job_form" accept-charset="utf-8">{%csrf_token %}
 <input id="email" type="text" value="Notification e-mail address" class="default-value"></input>
 <br><br>
 <div id="div_1" class="cloned_div">
   <select id="select_1" class="repo_select" onchange="get_version(this.id, this.value, '{{distro}}')">
-    <option value="0">Select...</option>
-    {% for repo in repo_list %}
-    <option value="{{repo}}">{{repo}}</option>
-    {% endfor %}
+    <option value=0>Loading...</option>
   </select>
   <select id="version_1" class="version_select" onchange="get_version_description(this.id)"></select>
   <span id="loader_1" style="display:none">...</span>
@@ -107,7 +72,9 @@ href="https://code.ros.org/trac/ros/newticket?component=ros_release&type=defect&
 </div>
 <input id="btn_add" type="button" value="+" onclick="add_dropdown()"/>
 <input id="btn_del" type="button" value="-" disabled="true" onclick="delete_dropdown()"/>
-<input id="btn_submit" type="button" value="Submit" onclick="submit_jobs()"/>
+<br>
+<br>
+<input id="btn_submit" type="button" value="Start Testing" onclick="submit_jobs()"/>
 </form>
 
 {% endblock %}

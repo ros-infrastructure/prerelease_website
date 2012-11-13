@@ -26,7 +26,7 @@ def get_version(request, id_num, distro, repo):
         out.append('<option value="devel">Devel</option>')
         description_output.append('<div name="devel">Text for devel</div>')
 
-    return simplejson.dumps({'id': id_num, 
-                             'select_innerHTML': ''.join(out), 
+    return simplejson.dumps({'id': id_num,
+                             'select_innerHTML': ''.join(out),
                              'descriptions': ''.join(description_output)})
 

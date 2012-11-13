@@ -1,11 +1,26 @@
+function get_repo_list()
+{
+  repo_list = new Array()
+  var repo_selects = $("#submit_job_form").find(".repo_select");
+  for(var i=0; i < repo_selects.length; ++i)
+  {
+    if(repo_selects[i].value != 0)
+      repo_list.push(repo_selects[i].value);
+  }
+  return repo_list;
+}
+
+
+
+
 function submit_jobs()
 {
   var email = $("#email");
   console.log(email);
   console.log("E-mail: " + email.val());
+  repo_list = []
   var repo_selects = $("#submit_job_form").find(".repo_select");
   var version_selects = $("#submit_job_form").find(".version_select");
-  repo_list = []
   for(var i=0; i < repo_selects.length; ++i)
   {
     if(repo_selects[i].value != 0)
@@ -25,11 +40,11 @@ function submit_cb(data)
 
 function get_version(select_id, repo, distro)
 {
-  var id = select_id.split('_')[1]
-  $('#version_' + id).hide()
-  $('#description_' + id).hide()
-  $('#loader_' + id).show()
-  Dajaxice.submit_jobs.get_version(version_cb, {'id_num':id, 'repo':repo, 'distro':distro});
+    var id = select_id.split('_')[1]
+    $('#version_' + id).hide()
+    $('#description_' + id).hide()
+    $('#loader_' + id).show()
+    Dajaxice.submit_jobs.get_version(version_cb, {'id_num':id, 'repo':repo, 'distro':distro});
 }
 
 function get_version_description(version_id)
@@ -55,9 +70,26 @@ function version_cb(data)
   //Only show the description that corresponds to the selected
   //version number
   get_version_description('#version_' + data.id);
-
   $('#description_' + data.id).show();
 }
+
+
+function select_repositories(id, distro_select)
+{
+  $("#select_"+id).find('option[value!=""]').remove();
+  skip_list = get_repo_list();
+  for (var repo in repositories){
+    var duplicate = false
+      for (var i=0; i<skip_list.length; i++){
+	  if (repo == skip_list[i])
+	      duplicate = true
+      }
+      if (!distro_select || repositories[repo]['distro'] == distro_select)
+	  if (!duplicate)
+	      $("#select_"+id).append("<option value="+repo+">"+repo+"</option>")
+  }
+};
+
 
 function add_dropdown() {
   var num = $('.cloned_div').length; // how many "duplicatable" input fields we currently have
@@ -78,11 +110,14 @@ function add_dropdown() {
   $('#description_' + new_num).html('');
   $('#description_' + new_num).hide();
 
+  var repo_selects = $("#submit_job_form").find(".repo_select");
+  select_repositories(new_num, repositories[repo_selects[0].value]['distro']);
+
   // enable the "remove" button
   $('#btn_del').attr('disabled',false);
 
   // business rule: you can only add 5 names
-  if (new_num == 5)
+  if (new_num == 15)
     $('#btn_add').attr('disabled','disabled');
 }
 

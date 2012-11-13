@@ -1,11 +1,33 @@
 import yaml
 import urllib2
 import logging
+import rospkg
+import rospkg.distro
 #from django.db import models
 
 logger = logging.getLogger('submit_jobs')
 
 #TODO: Switch to a parsing library for the distro files once it comes out
+
+class DryRosDistro(object):
+    def __init__(self, distro):
+        self.distro = distro
+        self.distro_obj = rospkg.distro.load_distro(rospkg.distro.distro_uri(distro))
+
+    def get_info(self):
+        res = {}
+        for name, s in self.distro_obj.stacks.iteritems():
+            if s.vcs_config.type == 'svn':
+                url = s.vcs_config.anon_dev
+            else:
+                url = s.vcs_config.repo_uri
+            res[name] = {'distro': [self.distro + "_dry"],
+                         'version': ['latest'],
+                         'url': [url],
+                         'branch': ['branch']}
+        return res
+
+
 
 #We're essentially using GitHub as a backend since the distro files are hosted there
 class WetRosDistro(object):
@@ -21,6 +43,23 @@ class WetRosDistro(object):
             logger.error("Could not load rosdistro file or devel file")
             self.distro_file = None
             self.devel_file = None
+
+
+    def get_info(self):
+        res = {}
+        for name, r in self.devel_file['repositories'].iteritems():
+            if not 'version' in r or not r['version']:
+                branch = ""
+            else:
+                branch = r['version']
+            res[name] = {'distro': [self.distro + "_wet"],
+                         'version': ['devel'],
+                         'url': [r['url']],
+                         'branch': [branch]}
+        print res
+        return res
+
+
 
     def get_repos(self):
         if self.distro_file is None or self.devel_file is None:
