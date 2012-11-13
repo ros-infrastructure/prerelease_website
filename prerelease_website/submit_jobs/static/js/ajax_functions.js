@@ -95,6 +95,9 @@ function add_dropdown() {
   var num = $('.cloned_div').length; // how many "duplicatable" input fields we currently have
   var new_num  = new Number(num + 1);      // the numeric ID of the new input field being added
 
+  // disable previous dropdown
+  $('#select_'+num).attr('disabled','disabled');
+
   // create the new element via clone(), and manipulate it's ID using newNum value
   var new_elem = $('#div_' + num).clone().attr('id', 'div_' + new_num);
 
@@ -116,6 +119,8 @@ function add_dropdown() {
   // enable the "remove" button
   $('#btn_del').attr('disabled',false);
 
+  $('#select_'+new_num).attr('disabled', false);
+
   // business rule: you can only add 5 names
   if (new_num == 15)
     $('#btn_add').attr('disabled','disabled');
@@ -128,6 +133,8 @@ function delete_dropdown()
 
   // enable the "add" button
   $('#btn_add').attr('disabled',false);
+
+  $('#select_'+(num-1)).attr('disabled', false);
 
   // if only one element remains, disable the "remove" button
   if (num-1 == 1)
