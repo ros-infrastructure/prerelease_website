@@ -4,11 +4,13 @@ INSTALLATION
   - sudo pip install django_dajax
 
 APACHE
+Note: All paths must include the main project for use with apache. 
+So, project.app.urls, project.app.views instead of app.urls or app.views.
+Usefult page: http://blog.stannard.net.au/2010/12/11/installing-django-with-apache-and-mod_wsgi-on-ubuntu-10-04/
+
 sudo apt-get install apache2 libapache2-mod-wsgi
-http://blog.stannard.net.au/2010/12/11/installing-django-with-apache-and-mod_wsgi-on-ubuntu-10-04/
 
 Place the following into /etc/apache2/sites-enabled/prerelease
-
 ==== BEGIN ====
 <VirtualHost *:80>
   ServerName localhost
