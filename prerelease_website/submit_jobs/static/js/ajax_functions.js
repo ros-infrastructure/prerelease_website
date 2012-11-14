@@ -1,3 +1,10 @@
+var rotation = function (image){
+   $("#"+image).rotate({
+      angle:0, 
+      animateTo:360, 
+      callback: rotation(image)
+   });
+}
 
 function get_repo_list(ros_distro)
 {
@@ -29,10 +36,18 @@ function run_jobs_cb(data)
   console.log("Job submitted");
 
   console.log(data);
-  if (data['success'] == 'true')
+  if (data['success'] == 'true'){
       console.log("Success!!!");
-  else
+      $("#waiting").hide();
+      $("#success").show();
+      $("#output").html(data['std_out']);
+  }
+  else{
       console.log("Failure...");
+      $("#waiting").hide();
+      $("#failure").show();
+      $("#output").html(data['std_err']);
+  }
 }
 
 

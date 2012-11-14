@@ -37,8 +37,20 @@ $(window).load(function()
   {% for r in repos %}
     repo_list['{{r.0}}'] = '{{r.1}}';
   {% endfor %}
+
+  $("#success").hide();
+  $("#failure").hide();
   run_jobs('{{email}}', '{{ros_distro}}', repo_list);
-});
+
+  var rotation = function (){
+     $("#pr2").rotate({
+        angle:0,
+        animateTo:360,
+        callback: rotation
+     });
+  }
+  rotation();
+  });
 
 </script>
 {% endblock %}
@@ -47,15 +59,51 @@ $(window).load(function()
 
 
 {% block content %}
-<h2>Triggering Pre-Release Tests</h2>
-<p>
-Please wait while we're triggering the pre-release tests on ROS distro {{ros_distro}} for:
-<ul>
-{% for r in repos %}
-  <li> {{r.0}} ({{r.1}}) </li>
-{% endfor %}
-</ul>
-When the tests finish, you will receive an email at {{email}}.
-</p>
+<div id="waiting" >
+  <h2>Please wait while triggering Pre-Release tests...</h2>
+  <p>
+  We're now triggering the pre-release tests on ROS distro {{ros_distro}} for:
+  <ul>
+  {% for r in repos %}
+    <li> {{r.0}} ({{r.1}}) </li>
+  {% endfor %}
+  </ul>
+  </p>
+  <br>
+  <img id="pr2" src="/static/images/search.png" height="200"/>
+</div>
+
+
+<div id="success" >
+  <h2>Success!!!!</h2>
+  <p>
+  We successfully trigered your pre-release jobs. When the jobs finish, you'll receive an email at {{email}}
+  <ul>
+  {% for r in repos %}
+    <li> {{r.0}} ({{r.1}}) </li>
+  {% endfor %}
+  </ul>
+  </p>
+  <br>
+  <img id="pr2_success" src="/static/images/success.png" height="200"/>
+</div>
+
+
+<div id="failure" >
+  <h2>Failed......</h2>
+  <p>
+  We failed to triger your pre-release jobs... Check out the output below.
+  <ul>
+  {% for r in repos %}
+    <li> {{r.0}} ({{r.1}}) </li>
+  {% endfor %}
+  </ul>
+  </p>
+  <br>
+  <img id="pr2_fail" src="/static/images/failure.png" height="200"/>
+</div>
+
+<p id="output"></p>
+
 
 {% endblock %}
