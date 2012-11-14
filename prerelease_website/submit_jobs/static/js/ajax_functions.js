@@ -15,31 +15,40 @@ function get_repo_list()
 
 function submit_jobs()
 {
-  var email = $("#email");
-  console.log("E-mail: " + email.val());
-  repo_list = []
   var repo_selects = $("#submit_job_form").find(".repo_select");
   var version_selects = $("#submit_job_form").find(".version_select");
+
+  repo_list = []
   for(var i=0; i < repo_selects.length; ++i)
   {
-    if(repo_selects[i].value != 0)
-    {
       console.log(repo_selects[i].id + ": " + repo_selects[i].value);
       console.log(version_selects[i].id + ": " + version_selects[i].value);
       repo_list.push({'repo': repo_selects[i].value, 'version': version_selects[i].value});
-    }
   }
-  Dajaxice.submit_jobs.submit_job_ajax(submit_cb, {'ros_distro': repositories[repo_list[0]['repo']]['distro'],
-					      'email': email.val(),
-					      'repositories': repo_list});
+  var email = $("#email").val();
+  var ros_distro = repositories[repo_list[0]['repo']]['distro'];
+  console.log("E-mail: " + email);
+  console.log("ROS Distro: " + ros_distro);
+
+
+  // redirect to new view
+  run_jobs(email, ros_distro, repo_list);
 }
 
 
 
-function submit_cb(data)
+function run_jobs(email, ros_distro, repo_list)
+{
+  Dajaxice.submit_jobs.run_job_ajax(run_jobs_cb, {'ros_distro': ros_distro,
+						  'email': email,
+						  'repositories': repo_list});
+}
+
+function run_jobs_cb(data)
 {
   console.log("Job submitted");
 }
+
 
 
 function on_email(email) { 
@@ -138,7 +147,8 @@ function add_dropdown() {
 
   // manipulate the name/id values of the input inside the new element
   new_elem.children().each(function () {
-    $(this).attr('id', $(this).attr('id').split('_')[0] + '_' + new_num);
+    if ($(this).attr('id') && $(this).attr('id').indexOf('_') != -1)
+	$(this).attr('id', $(this).attr('id').split('_')[0] + '_' + new_num);
   });
 
   // insert the new element after the last "duplicatable" input field

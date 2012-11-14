@@ -69,19 +69,23 @@ pre-release build for all repositories at once.
 
 <h2>Select the Repositories to Test</h2>
 <form action="" method="post" id="submit_job_form" accept-charset="utf-8">{%csrf_token %}
-<input id="email" type="text" value="email" class="default-value" onchange="on_email(this.value)">  </input>
-<br><br>
+<hr>
 <div id="div_1" class="cloned_div">
+  <br>
+  Repository:
   <select id="select_1" class="repo_select" onchange="get_version(this.id)">
     <option value=0>Loading...</option>
   </select>
   <select id="version_1" class="version_select" onchange="get_version_description(this.id, this.value)"></select>
-  <div id="description_1">No information</div>
+  <p id="description_1">No information</p>
+  <br>
+  <hr>
 </div>
 <input id="btn_add" type="button" value="+" onclick="add_dropdown()"/>
 <input id="btn_del" type="button" value="-" disabled="true" onclick="delete_dropdown()"/>
-<br>
-<br>
+<br><br>
+Email address: <input id="email" type="text" value="email" class="default-value" onkeyup="on_email(this.value)" onchange="on_email(this.value)"></input>
+<br><br>
 <input id="btn_submit" type="button" value="Start Testing" onclick="submit_jobs()"/>
 </form>
 

@@ -8,7 +8,7 @@ import subprocess
 logger = logging.getLogger('submit_jobs')
 
 @dajaxice_register
-def submit_job_ajax(request, email, ros_distro, repositories):
+def run_job_ajax(request, email, ros_distro, repositories):
    logger.info(repositories)
    print "---"
    print email
