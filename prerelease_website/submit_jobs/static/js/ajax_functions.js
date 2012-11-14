@@ -50,7 +50,21 @@ function run_jobs_cb(data)
   }
 }
 
+function on_form()
+{
+  // enable all from inputs again
+  var repo_selects = $("#submit_job_form").find(".repo_select");
+  for(var i=0; i < repo_selects.length; ++i)
+      $("#repo_"+i).attr('disabled', false);
 
+  // submit form
+  $("#submit_job_form").submit();
+
+  // disable form inputs again
+  var repo_selects = $("#submit_job_form").find(".repo_select");
+  for(var i=0; i < repo_selects.length-1; ++i)
+      $("#repo_"+i).attr('disabled', 'disabled');
+}
 
 function on_email(email) { 
     // check if email is valid
@@ -164,7 +178,7 @@ function add_dropdown() {
   console.log("create element " + new_num);
 
   // disable previous dropdown
-  $('#repo_'+num).attr('readonly','readonly');
+  $('#repo_'+num).attr('disabled','disabled');
 
   // create the new element via clone(), and manipulate it's ID using newNum value
   var new_elem = $('#div_' + num).clone().attr('id', 'div_' + new_num);
@@ -188,7 +202,7 @@ function add_dropdown() {
   // enable the "remove" button
   $('#btn_del').attr('disabled',false);
 
-  $('#repo_'+new_num).attr('readonly', false);
+  $('#repo_'+new_num).attr('disabled', false);
 
   // business rule: you can only add 5 names
   if (new_num == 15)
@@ -203,7 +217,7 @@ function delete_dropdown()
   // enable the "add" button
   $('#btn_add').attr('disabled',false);
 
-  $('#repo_'+(num-1)).attr('readonly', false);
+  $('#repo_'+(num-1)).attr('disabled', false);
 
   // if only one element remains, disable the "remove" button
   if (num-1 == 1)
