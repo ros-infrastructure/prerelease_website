@@ -1,7 +1,7 @@
 import os
 import sys
  
-path = '/home/eitan/hidof/willow/prerelease_website'
+path = '/var/www/prerelease_website'
 if path not in sys.path:
     sys.path.insert(0, path)
  
