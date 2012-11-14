@@ -1,4 +1,4 @@
-function get_repo_list()
+function get_selected_repos()
 {
   repo_list = new Array()
   var repo_selects = $("#submit_job_form").find(".repo_select");
@@ -11,9 +11,22 @@ function get_repo_list()
 }
 
 
+function get_repo_list(ros_distro)
+{
+  Dajaxice.prerelease_website.submit_jobs.get_repo_list_ajax(get_repo_list_cb, {'ros_distro': ros_distro});
+}
 
 
-function submit_jobs()
+function get_repo_list_cb(repo_list)
+{
+  repositories = repo_list['repo_list'];
+  console.log("Received repository list");
+  select_repositories(1);
+}
+
+
+
+function create_jobs()
 {
   var repo_selects = $("#submit_job_form").find(".repo_select");
   var version_selects = $("#submit_job_form").find(".version_select");
@@ -39,9 +52,9 @@ function submit_jobs()
 
 function run_jobs(email, ros_distro, repo_list)
 {
-  Dajaxice.submit_jobs.run_job_ajax(run_jobs_cb, {'ros_distro': ros_distro,
-						  'email': email,
-						  'repositories': repo_list});
+  Dajaxice.prerelease_website.submit_jobs.run_jobs_ajax(run_jobs_cb, {'ros_distro': ros_distro,
+						   'email': email,
+						   'repositories': repo_list});
 }
 
 function run_jobs_cb(data)
@@ -107,9 +120,8 @@ function get_version_description(select_id, version)
 function select_repositories(id, distro_select)
 {
     keys = new Array();
-    
     $("#select_"+id).find('option[value!=""]').remove();
-    skip_list = get_repo_list();
+    skip_list = get_selected_repos();
     for (var repo in repositories){
 	var duplicate = false
 	for (var i=0; i<skip_list.length; i++){

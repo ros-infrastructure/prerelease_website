@@ -28,27 +28,13 @@ $(document).ready(function() {
     });
   });
 
-
-  // Store repositories in js dictionary
-  {% for name, repo in repo_list.items %}
-    repositories['{{name}}'] = {}
-    {% for key, value in repo.items %}
-      repositories['{{name}}']['{{key}}'] = new Array();
-      {% if key == 'distro' %}
-        repositories['{{name}}']['{{key}}'] = '{{value}}'
-      {% else %}
-        {% for v in value %}
-          repositories['{{name}}']['{{key}}'].push('{{v}}');
-        {% endfor %}
-      {% endif %}
-    {% endfor %}
-  {% endfor %}
-  select_repositories(1)
-
-  on_email();
 });
 
-
+$(window).load(function()
+{
+  on_email();
+  get_repo_list('{{distro}}');
+});
 
 </script>
 {% endblock %}
@@ -86,7 +72,7 @@ pre-release build for all repositories at once.
 <br><br>
 Email address: <input id="email" type="text" value="email" class="default-value" onkeyup="on_email(this.value)" onchange="on_email(this.value)"></input>
 <br><br>
-<input id="btn_submit" type="button" value="Start Testing" onclick="submit_jobs()"/>
+<input id="btn_submit" type="button" value="Start Testing" onclick="create_jobs()"/>
 </form>
 
 {% endblock %}

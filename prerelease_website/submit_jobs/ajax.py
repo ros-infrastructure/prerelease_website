@@ -4,11 +4,15 @@ from models import WetRosDistro
 from django.utils import simplejson
 import logging
 import subprocess
+from models import WetRosDistro, DryRosDistro
+
 
 logger = logging.getLogger('submit_jobs')
 
+
+
 @dajaxice_register
-def run_job_ajax(request, email, ros_distro, repositories):
+def run_jobs_ajax(request, email, ros_distro, repositories):
    logger.info(repositories)
    print "---"
    print email
@@ -36,23 +40,20 @@ def run_job_ajax(request, email, ros_distro, repositories):
 
 
 
-@dajaxice_register
-def get_version(request, id_num, distro, repo):
-    wd = WetRosDistro(distro)
-    out = []
-    rel_info = wd.get_release_info(repo)
-    devel_info = wd.get_devel_info(repo)
-    description_output = []
-    if rel_info:
-        out.append('<option value="latest">Latest</option>')
-        description_output.append('<div name="latest">Text for latest</div>')
-        out.append('<option value="%s">%s</option>' % (wd.get_repo_version(repo), wd.get_repo_version(repo)))
-        description_output.append('<div name="%s">Text for %s</div>'% (wd.get_repo_version(repo), wd.get_repo_version(repo)))
-    if devel_info:
-        out.append('<option value="devel">Devel</option>')
-        description_output.append('<div name="devel">Text for devel</div>')
 
-    return simplejson.dumps({'id': id_num,
-                             'select_innerHTML': ''.join(out),
-                             'descriptions': ''.join(description_output)})
+@dajaxice_register
+def get_repo_list_ajax(request, ros_distro):
+   dry_distro = DryRosDistro(ros_distro)
+   repo_list = dry_distro.get_info()
+   print "Got dry repo list"
+
+   if ros_distro == 'groovy':
+       wet_distro = WetRosDistro(ros_distro)
+       for name, d in wet_distro.get_info().iteritems():
+           if repo_list.has_key(name):
+               print "%s is in both wet and dry rosdistro!!!!"%name
+           repo_list[name] = d
+       print "Got wet repo list"
+
+   return simplejson.dumps({'repo_list': repo_list})
 
