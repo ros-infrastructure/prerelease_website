@@ -10,11 +10,11 @@ logger = logging.getLogger('submit_jobs')
 @dajaxice_register
 def run_job_ajax(request, email, ros_distro, repositories):
    logger.info(repositories)
-   print "---"
-   print email
-   print ros_distro
-   print repositories
-   print "---"
+   logger.info("---")
+   logger.info(email)
+   logger.info(ros_distro)
+   logger.info(repositories)
+   logger.info("---")
    info = ['rosbuild', 'gopr2']
 
    if ros_distro in ['electric_dry', 'diamondback_dry']:
@@ -29,7 +29,7 @@ def run_job_ajax(request, email, ros_distro, repositories):
    elif ros_distro == 'groovy_wet':
       command = "generate_jenkins_prerelease %s groovy %s"%(email, ' '.join(['%s %s'%(r['repo'], r['version']) for r in repositories]))
 
-   print command
+   logger.info(command)
 
 
    return simplejson.dumps({'success': 'true'})
