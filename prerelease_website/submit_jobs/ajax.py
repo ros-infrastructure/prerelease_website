@@ -45,15 +45,15 @@ def run_jobs_ajax(request, email, ros_distro, repositories):
 def get_repo_list_ajax(request, ros_distro):
    dry_distro = DryRosDistro(ros_distro)
    repo_list = dry_distro.get_info()
-   print "Got dry repo list"
+   logger.info("Got dry repo list")
 
    if ros_distro == 'groovy':
        wet_distro = WetRosDistro(ros_distro)
        for name, d in wet_distro.get_info().iteritems():
            if repo_list.has_key(name):
-               print "%s is in both wet and dry rosdistro!!!!"%name
+               logger.info("%s is in both wet and dry rosdistro!!!!"%name)
            repo_list[name] = d
-       print "Got wet repo list"
+       logger.info("Got wet repo list")
 
    return simplejson.dumps({'repo_list': repo_list})
 
