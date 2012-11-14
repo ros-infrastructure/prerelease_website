@@ -1,15 +1,3 @@
-function get_selected_repos()
-{
-  repo_list = new Array()
-  var repo_selects = $("#submit_job_form").find(".repo_select");
-  for(var i=0; i < repo_selects.length; ++i)
-  {
-    if(repo_selects[i].value != 0)
-      repo_list.push(repo_selects[i].value);
-  }
-  return repo_list;
-}
-
 
 function get_repo_list(ros_distro)
 {
@@ -21,45 +9,30 @@ function get_repo_list_cb(repo_list)
 {
   repositories = repo_list['repo_list'];
   console.log("Received repository list");
-  select_repositories(1);
-}
-
-
-
-function create_jobs()
-{
-  var repo_selects = $("#submit_job_form").find(".repo_select");
-  var version_selects = $("#submit_job_form").find(".version_select");
-
-  repo_list = []
-  for(var i=0; i < repo_selects.length; ++i)
-  {
-      console.log(repo_selects[i].id + ": " + repo_selects[i].value);
-      console.log(version_selects[i].id + ": " + version_selects[i].value);
-      repo_list.push({'repo': repo_selects[i].value, 'version': version_selects[i].value});
-  }
-  var email = $("#email").val();
-  var ros_distro = repositories[repo_list[0]['repo']]['distro'];
-  console.log("E-mail: " + email);
-  console.log("ROS Distro: " + ros_distro);
-
-
-  // redirect to new view
-  run_jobs(email, ros_distro, repo_list);
+  list_repositories(1);
+  $('#btn_add').attr('disabled', false);  
 }
 
 
 
 function run_jobs(email, ros_distro, repo_list)
 {
+  console.log("Run job: " + email + ", " + ros_distro);
+  console.log(repo_list);
   Dajaxice.prerelease_website.submit_jobs.run_jobs_ajax(run_jobs_cb, {'ros_distro': ros_distro,
-						   'email': email,
-						   'repositories': repo_list});
+								      'email': email,
+								      'repo_list': repo_list});
 }
 
 function run_jobs_cb(data)
 {
   console.log("Job submitted");
+
+  console.log(data);
+  if (data['success'] == 'true')
+      console.log("Success!!!");
+  else
+      console.log("Failure...");
 }
 
 
@@ -77,11 +50,18 @@ function on_email(email) {
 
 
 
-function get_version(select_id)
+function get_version(repo_id)
 {
     // find repo name
-    var id = select_id.split('_')[1];
-    var repo = $("#select_"+id).val();
+    var id = repo_id.split('_')[1];
+    var repo = $("#repo_"+id).val();
+    console.log("Get version with id " + repo_id + " of repo " + repo);
+
+    // set ros distro (including wet/dry) based on first select
+    if (id == 1){
+	$("#ros_distro").val(repositories[repo]['distro']);
+	console.log("Set repository to " + $("#ros_distro").val());
+    }
 
     // add versions to dropdown menu
     $("#version_"+id).find('option[value!=""]').remove();
@@ -91,15 +71,15 @@ function get_version(select_id)
     }
 
     // set default value
-    get_version_description("select_"+id, 0);  
+    get_version_description("repo_"+id, 0);  
 }
 
 
-function get_version_description(select_id, version)
+function get_version_description(repo_id, version)
 {
     // find repo name
-    var id = select_id.split('_')[1];
-    var repo = $("#select_"+id).val();
+    var id = repo_id.split('_')[1];
+    var repo = $("#repo_"+id).val();
 
     // find id of selected version
     var version_id = 0;
@@ -117,10 +97,26 @@ function get_version_description(select_id, version)
 
 
 
-function select_repositories(id, distro_select)
+function get_selected_repos()
 {
+  repo_list = new Array()
+  var repo_selects = $("#submit_job_form").find(".repo_select");
+  for(var i=0; i < repo_selects.length; ++i)
+  {
+    if(repo_selects[i].value != 0)
+      repo_list.push(repo_selects[i].value);
+  }
+  return repo_list;
+}
+
+
+
+function list_repositories(id, distro_select)
+{
+    console.log("list repos of type " + distro_select);
+
     keys = new Array();
-    $("#select_"+id).find('option[value!=""]').remove();
+    $("#repo_"+id).find('option[value!=""]').remove();
     skip_list = get_selected_repos();
     for (var repo in repositories){
 	var duplicate = false
@@ -137,11 +133,11 @@ function select_repositories(id, distro_select)
     // add in sorted order
     keys.sort();
     for (var i=0; i<keys.length; i++)
-	$("#select_"+id).append("<option value="+keys[i]+">"+keys[i]+"</option>")
+	$("#repo_"+id).append("<option value="+keys[i]+">"+keys[i]+"</option>")
     
     
     // set default value
-    get_version("select_"+id);
+    get_version("repo_"+id);
 };
 
 
@@ -150,9 +146,10 @@ function select_repositories(id, distro_select)
 function add_dropdown() {
   var num = $('.cloned_div').length; // how many "duplicatable" input fields we currently have
   var new_num  = new Number(num + 1);      // the numeric ID of the new input field being added
+  console.log("create element " + new_num);
 
   // disable previous dropdown
-  $('#select_'+num).attr('disabled','disabled');
+  $('#repo_'+num).attr('readonly','readonly');
 
   // create the new element via clone(), and manipulate it's ID using newNum value
   var new_elem = $('#div_' + num).clone().attr('id', 'div_' + new_num);
@@ -161,6 +158,8 @@ function add_dropdown() {
   new_elem.children().each(function () {
     if ($(this).attr('id') && $(this).attr('id').indexOf('_') != -1)
 	$(this).attr('id', $(this).attr('id').split('_')[0] + '_' + new_num);
+    if ($(this).attr('name') && $(this).attr('name').indexOf('_') != -1)
+	$(this).attr('name', $(this).attr('name').split('_')[0] + '_' + new_num);
   });
 
   // insert the new element after the last "duplicatable" input field
@@ -169,13 +168,12 @@ function add_dropdown() {
   $('#version_' + new_num).html('');
   $('#description_' + new_num).html('');
 
-  var repo_selects = $("#submit_job_form").find(".repo_select");
-  select_repositories(new_num, repositories[repo_selects[0].value]['distro']);
+  list_repositories(new_num, $("#ros_distro").val());
 
   // enable the "remove" button
   $('#btn_del').attr('disabled',false);
 
-  $('#select_'+new_num).attr('disabled', false);
+  $('#repo_'+new_num).attr('disabled', false);
 
   // business rule: you can only add 5 names
   if (new_num == 15)
@@ -190,7 +188,7 @@ function delete_dropdown()
   // enable the "add" button
   $('#btn_add').attr('disabled',false);
 
-  $('#select_'+(num-1)).attr('disabled', false);
+  $('#repo_'+(num-1)).attr('readonly', false);
 
   // if only one element remains, disable the "remove" button
   if (num-1 == 1)

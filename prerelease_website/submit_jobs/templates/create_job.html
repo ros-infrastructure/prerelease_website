@@ -54,25 +54,23 @@ pre-release build for all repositories at once.
 <img src="/static/images/{{distro}}.png" />
 
 <h2>Select the Repositories to Test</h2>
-<form action="" method="post" id="submit_job_form" accept-charset="utf-8">{%csrf_token %}
-<hr>
-<div id="div_1" class="cloned_div">
-  <br>
-  Repository:
-  <select id="select_1" class="repo_select" onchange="get_version(this.id)">
-    <option value=0>Loading...</option>
-  </select>
-  <select id="version_1" class="version_select" onchange="get_version_description(this.id, this.value)"></select>
-  <p id="description_1">No information</p>
-  <br>
+<form action="/prerelease/run_job" method="post" id="submit_job_form" accept-charset="utf-8">{%csrf_token %}
+  <input type="hidden" id="ros_distro" name="ros_distro" value="" />
   <hr>
-</div>
-<input id="btn_add" type="button" value="+" onclick="add_dropdown()"/>
-<input id="btn_del" type="button" value="-" disabled="true" onclick="delete_dropdown()"/>
-<br><br>
-Email address: <input id="email" type="text" value="email" class="default-value" onkeyup="on_email(this.value)" onchange="on_email(this.value)"></input>
-<br><br>
-<input id="btn_submit" type="button" value="Start Testing" onclick="create_jobs()"/>
+  <div id="div_1" class="cloned_div">
+    <br>Repository:
+    <select name="repo_1" id="repo_1" class="repo_select" onchange="get_version(this.id)">
+      <option value=0>Loading...</option>
+    </select>
+    <select name="version_1" id="version_1" class="version_select" onchange="get_version_description(this.id, this.value)"></select>
+    <p id="description_1">No information</p> <br> <hr>
+  </div>
+  <input id="btn_add" type="button" value="+" disabled="true" onclick="add_dropdown()"/>
+  <input id="btn_del" type="button" value="-" disabled="true" onclick="delete_dropdown()"/>
+  <br><br>
+  Email address: <input name="email" id="email" type="text" value="email" class="default-value" onkeyup="on_email(this.value)" onchange="on_email(this.value)"></input>
+  <br><br>
+  <input id="btn_submit" type="submit" value="Start Testing" />
 </form>
 
 {% endblock %}

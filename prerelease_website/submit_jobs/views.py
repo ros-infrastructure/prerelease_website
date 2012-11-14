@@ -15,9 +15,20 @@ def create_job(request, distro):
                               context_instance=RequestContext(request))
 
 
-def run_job(request, email, distro, repo_list):
+def run_job(request):
+    data = request.POST
+
+    i = 1
+    repos = []
+    while True:
+        if 'repo_%d'%i in data and 'version_%d'%i in data:
+            repos.append((data['repo_%d'%i], data['version_%d'%i]))
+            i += 1
+        else:
+            break
+
     return render_to_response('run_job.html',
-                              {'email': email, 'ros_distro': distro,
-                               'repo_list': repo_list},
+                              {'email': data['email'], 'ros_distro': data['ros_distro'],
+                               'repos': repos},
                               context_instance=RequestContext(request))
 
