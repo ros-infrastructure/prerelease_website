@@ -188,7 +188,7 @@ function add_dropdown() {
   // enable the "remove" button
   $('#btn_del').attr('disabled',false);
 
-  $('#repo_'+new_num).attr('disabled', false);
+  $('#repo_'+new_num).attr('readonly', false);
 
   // business rule: you can only add 5 names
   if (new_num == 15)

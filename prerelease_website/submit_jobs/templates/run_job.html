@@ -28,6 +28,8 @@ $(document).ready(function() {
       }
     });
   });
+  $("#success").hide();
+  $("#failure").hide();
 });
 
 
@@ -38,8 +40,6 @@ $(window).load(function()
     repo_list['{{r.0}}'] = '{{r.1}}';
   {% endfor %}
 
-  $("#success").hide();
-  $("#failure").hide();
   run_jobs('{{email}}', '{{ros_distro}}', repo_list);
 
   var rotation = function (){
