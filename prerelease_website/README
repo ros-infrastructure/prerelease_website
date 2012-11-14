@@ -14,7 +14,7 @@ Place the following into /etc/apache2/sites-enabled/prerelease
 ==== BEGIN ====
 <VirtualHost *:80>
   ServerName localhost
-  DocumentRoot /path/to/prerelease_website/prerelease_website
+  DocumentRoot /var/www/test
 
   Alias /media /path/to/prerelease_website/prerelease_website/media
   Alias /static /path/to/prerelease_website/prerelease_website/static_autoserve
@@ -29,15 +29,10 @@ Place the following into /etc/apache2/sites-enabled/prerelease
     Allow from all
   </Directory>
 
-  <Directory /path/to/prerelease_website/prerelease_website/apace>
-    Order allow,deny
-    Allow from all
-  </Directory>
+  WSGIDaemonProcess prerelease.djangoserver processes=2 threads=15 display-name=%{GROUP}
+  WSGIProcessGroup prerelease.djangoserver
 
-  WSGIDaemonProcess localhost.djangoserver processes=2 threads=15 display-name=%{GROUP}
-  WSGIProcessGroup localhost.djangoserver
-
-  WSGIScriptAlias / /path/to/prerelease_website/prerelease_website/apache/django.wsgi
+  WSGIScriptAlias /jenkins /path/to/prerelease_website/prerelease_website/apache/django.wsgi
 </VirtualHost>
 === END ===
 
