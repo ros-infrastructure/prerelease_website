@@ -70,6 +70,13 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
    logger.info(str(res))
    logger.info(str(err))
 
+
+
+   res = res.replace('<', '<a href="')
+   res = res.replace('>', '">the Jenkins server</a>')
+   res = res.replace('\n', '<br>')
+   logger.info(str(res))
+
    success = 'true'
    if helper.returncode != 0:
       success = 'false'
