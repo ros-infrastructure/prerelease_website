@@ -32,7 +32,9 @@ $(document).ready(function() {
 
 $(window).load(function()
 {
-  on_email();
+  // periodically run on_email()
+  var refresh_email=setInterval(function(){on_email()},1000);
+
   get_repo_list('{{distro}}');
 });
 
@@ -69,7 +71,7 @@ pre-release build for all repositories at once.
   <input id="btn_add" type="button" value="+" disabled="true" onclick="add_dropdown()"/>
   <input id="btn_del" type="button" value="-" disabled="true" onclick="delete_dropdown()"/>
   <br><br>
-  Email address: <input name="email" id="email" type="text" value="email" class="default-value" onkeyup="on_email(this.value)" onchange="on_email(this.value)"></input>
+  Email address: <input name="email" id="email" type="text" value="email" class="default-value" onkeyup="on_email()" onchange="on_email()"></input>
   <br><br>
   <input id="btn_submit" type="button" onclick="on_form()" value="Start Testing" />
 </form>
