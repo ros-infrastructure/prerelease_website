@@ -1,3 +1,4 @@
+
 var rotation = function (image){
    $("#"+image).rotate({
       angle:0, 
@@ -66,7 +67,9 @@ function on_form()
       $("#repo_"+i).attr('disabled', 'disabled');
 }
 
-function on_email(email) { 
+function on_email() { 
+    console.log("on_email: " + email);
+
     // check if email is valid
     var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 
