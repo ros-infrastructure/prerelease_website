@@ -10,7 +10,7 @@ dajaxice_autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^prerelease_new/', include('prerelease_website.submit_jobs.urls')),
+    url(r'^prerelease/', include('prerelease_website.submit_jobs.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
