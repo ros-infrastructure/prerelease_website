@@ -11,6 +11,7 @@ dajaxice_autodiscover()
 urlpatterns = patterns('',
     # Examples:
     url(r'^prerelease/', include('prerelease_website.submit_jobs.urls')),
+    url(r'^rosinstall/', include('prerelease_website.rosinstall_gen.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),

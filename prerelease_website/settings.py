@@ -118,7 +118,6 @@ ROOT_URLCONF = 'prerelease_website.urls'
 
 TEMPLATE_DIRS = (
     os.path.join(os.path.dirname(__file__), 'templates'),
-    os.path.join(os.path.dirname(__file__), 'submit_jobs', 'templates')
 )
 
 INSTALLED_APPS = (
@@ -131,6 +130,7 @@ INSTALLED_APPS = (
     'dajaxice',
     'dajax',
     'prerelease_website.submit_jobs',
+    'prerelease_website.rosinstall_gen',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
