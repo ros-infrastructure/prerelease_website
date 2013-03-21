@@ -17,7 +17,7 @@ def get_repo_list_ajax(request, ros_distro):
    repo_list = dry_distro.get_info()
    logger.info("Got dry repo list")
 
-   if ros_distro == 'groovy':
+   if ros_distro in ['groovy', 'hydro']:
        wet_distro = WetRosDistro(ros_distro)
        for name, d in wet_distro.get_info().iteritems():
            if repo_list.has_key(name):
@@ -51,7 +51,7 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
       elif ros_distro == 'fuerte':
          command = 'generate_prerelease.py %s %s --repeat 0 --email %s --rosdistro %s'%(info[0], info[1], email, ros_distro)
 
-      elif ros_distro == 'groovy':
+      elif ros_distro in ['groovy', 'hydro']:
          command = 'generate_groovy_prerelease.py %s %s --repeat 0 --email %s --rosdistro %s'%(info[0], info[1], email, ros_distro)
 
       for r in repo_list:
@@ -59,8 +59,8 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
 
    elif '_wet' in ros_distro:
       ros_distro = ros_distro.split("_")[0]
-      if ros_distro == 'groovy':
-         command = "generate_jenkins_prerelease %s groovy %s"%(email, ' '.join(['%s %s'%(r, v) for r, v in repo_list.iteritems()]))
+      if ros_distro in ['groovy', 'hydro']:
+         command = "generate_jenkins_prerelease %s %s %s"%(email, rosdistro, ' '.join(['%s %s'%(r, v) for r, v in repo_list.iteritems()]))
 
 
    logger.info("Executing command")
