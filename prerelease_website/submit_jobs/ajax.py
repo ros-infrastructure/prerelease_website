@@ -60,7 +60,7 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
    elif '_wet' in ros_distro:
       ros_distro = ros_distro.split("_")[0]
       if ros_distro in ['groovy', 'hydro']:
-         command = "generate_jenkins_prerelease %s %s %s"%(email, rosdistro, ' '.join(['%s %s'%(r, v) for r, v in repo_list.iteritems()]))
+         command = "generate_jenkins_prerelease %s %s %s"%(email, ros_distro, ' '.join(['%s %s'%(r, v) for r, v in repo_list.iteritems()]))
 
 
    logger.info("Executing command")
