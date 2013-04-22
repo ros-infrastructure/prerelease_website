@@ -1,10 +1,9 @@
 from dajax.core import Dajax
 from dajaxice.decorators import dajaxice_register
-from models import WetRosDistro
 from django.utils import simplejson
 import logging
 import subprocess
-from models import WetRosDistro, DryRosDistro
+from models import WetRosDistro, WetRosFuerte, DryRosDistro
 
 
 logger = logging.getLogger('submit_jobs')
@@ -18,7 +17,10 @@ def get_repo_list_ajax(request, ros_distro):
    logger.info("Got dry repo list")
 
    if ros_distro in ['groovy', 'hydro']:
-       wet_distro = WetRosDistro(ros_distro)
+       if ros_distro != 'fuerte':
+           wet_distro = WetRosDistro(ros_distro)
+       else:
+           wet_distro = WetRosFuerte(ros_distro)
        for name, d in wet_distro.get_info().iteritems():
            if repo_list.has_key(name):
                logger.info("%s is in both wet and dry rosdistro!!!!"%name)
