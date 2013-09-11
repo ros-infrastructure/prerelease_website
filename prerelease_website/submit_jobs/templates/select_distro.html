@@ -19,23 +19,23 @@
 
 <h2>What gets tested:</h2>
 <p>
-Jenkins will build your stack plus all released stacks that have a dependency on
-your stack. So you will find out if your own stack works, and if the release of
-your stack breaks any of the already released stacks. The build will happen on
-all the distributions and architectures that are supported by Willow Garage.
-Jenkins will download the branches of your stack that are specified in the
+Jenkins will build your package plus all released packages that have a dependency on
+your package. So you will find out if your own package works, and if the release of
+your package breaks any of the already released packages. Due to resource constraints
+the build will only happen for one specific distribution and architecture.<br />
+Jenkins will download the branches of your package that are specified in the
 rosdistro file. In some cases this is trunk, in other cases this is another
 branch. Check the rosdistro file to see which branches will get tested. See
-<a href="http://www.ros.org/wiki/regression_tests">this</a> page for more details.
+<a href="http://wiki.ros.org/regression_tests">this</a> page for more details.
 </p>
 
 <h2>Why run these tests:</h2>
 <p>
 You should see these Jenkins tests as a powerful tool to help you to avoid the
-embarasment of releasing a broken stack, or worse, from releasing a stack that
-breaks other people's code. While it is acceptable to release a stack that does
-not work on all distributions and architectures that are supported by Willow
-Garage, your stack will be much more useful to the community when it works on
+embarrassment of releasing a broken package, or worse, from releasing a package that
+breaks other people's code. While it is acceptable to release a package that does
+not work on all distributions and architectures that are supported by a ROS
+distribution, your package will be much more useful to the community when it works on
 all supported platforms.
 </p>
 
@@ -43,7 +43,7 @@ all supported platforms.
 <p>
 If you're trying to reproduce a failure that only happens on a distro/arch that
 is different from your machine, you can follow <a
-href="http://www.ros.org/wiki/regression_tests/reproducing">these
+href="http://wiki.ros.org/regression_tests/reproducing">these
 instructions</a> to set up a chroot invironment.
 </p>
 
