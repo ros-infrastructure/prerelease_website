@@ -24,8 +24,8 @@ def get_repo_list_ajax(request, ros_distro):
            else:
               repo_list[name] = d
        logger.info("Got wet repo list")
-    else:
-      assert False, 'Unsupported distro'
+   else:
+       assert False, 'Unsupported distro'
 
    return simplejson.dumps({'repo_list': repo_list})
 
