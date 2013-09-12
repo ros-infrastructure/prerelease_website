@@ -6,7 +6,7 @@ INSTALLATION
 APACHE
 Note: All paths must include the main project for use with apache.
 So, project.app.urls, project.app.views instead of app.urls or app.views.
-Usefult page: http://blog.stannard.net.au/2010/12/11/installing-django-with-apache-and-mod_wsgi-on-ubuntu-10-04/
+Useful page: http://blog.stannard.net.au/2010/12/11/installing-django-with-apache-and-mod_wsgi-on-ubuntu-10-04/
 
 sudo apt-get install apache2 libapache2-mod-wsgi
 
@@ -29,7 +29,7 @@ Place the following into /etc/apache2/sites-enabled/prerelease
     Allow from all
   </Directory>
 
-  WSGIDaemonProcess prerelease.djangoserver processes=2 threads=15 display-name=%{GROUP}
+  WSGIDaemonProcess prerelease.djangoserver processes=2 threads=15 display-name=%{GROUP} python-path=/var/www/prerelease_website/venv/lib/python2.6/site-packages:/var/www/prerelease_website
   WSGIProcessGroup prerelease.djangoserver
 
   WSGIScriptAlias /jenkins /path/to/prerelease_website/prerelease_website/apache/django.wsgi
