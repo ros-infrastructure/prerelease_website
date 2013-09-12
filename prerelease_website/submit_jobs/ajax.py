@@ -16,16 +16,13 @@ def get_repo_list_ajax(request, ros_distro):
    repo_list = dry_distro.get_info()
    logger.info("Got dry repo list")
 
-   if ros_distro in ['groovy', 'hydro']:
-       wet_distro = WetRosDistro(ros_distro)
-       for name, d in wet_distro.get_info().iteritems():
-           if repo_list.has_key(name):
-               logger.info("%s is in both wet and dry rosdistro!!!!"%name)
-           else:
-              repo_list[name] = d
-       logger.info("Got wet repo list")
-   else:
-       assert False, 'Unsupported distro'
+   wet_distro = WetRosDistro(ros_distro)
+   for name, d in wet_distro.get_info().iteritems():
+       if repo_list.has_key(name):
+           logger.info("%s is in both wet and dry rosdistro!!!!"%name)
+       else:
+          repo_list[name] = d
+   logger.info("Got wet repo list")
 
    return simplejson.dumps({'repo_list': repo_list})
 
@@ -39,9 +36,6 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
    logger.info(ros_distro)
    logger.info(repo_list)
    logger.info("---")
-
-   if ros_distro not in ['groovy', 'hydro']:
-      assert False, 'Unsupported distro'
 
    if '_dry' in ros_distro:
       ros_distro = ros_distro.split("_")[0]
@@ -57,6 +51,9 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
    elif '_wet' in ros_distro:
       ros_distro = ros_distro.split("_")[0]
       command = "generate_jenkins_prerelease %s %s %s"%(email, ros_distro, ' '.join(['%s %s'%(r, v) for r, v in repo_list.iteritems()]))
+
+   else:
+      assert False, 'Neither wet nor dry'
 
 
    logger.info("Executing command")
