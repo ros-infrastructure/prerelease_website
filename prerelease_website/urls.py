@@ -11,7 +11,6 @@ dajaxice_autodiscover()
 
 urlpatterns = patterns('',
     # Examples:
-    url(r'^prerelease/', include('prerelease_website.submit_jobs.urls')),
     url(r'^rosinstall/', include('prerelease_website.rosinstall_gen.urls')),
 
     # Uncomment the admin/doc line below to enable admin documentation:
@@ -20,6 +19,8 @@ urlpatterns = patterns('',
     # Uncomment the next line to enable the admin:
     # url(r'^admin/', include(admin.site.urls)),
     url(dajaxice_config.dajaxice_url, include('dajaxice.urls')),
+
+    url(r'^', include('prerelease_website.submit_jobs.urls')),
 )
 
 urlpatterns += staticfiles_urlpatterns()

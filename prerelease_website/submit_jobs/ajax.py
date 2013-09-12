@@ -46,7 +46,7 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
    if '_dry' in ros_distro:
       ros_distro = ros_distro.split("_")[0]
 
-      f = open('/var/www/hds.xml')
+      f = open('/var/www/prerelease_website/jenkins.conf')
       info = f.read().split(',')
 
       command = 'generate_groovy_prerelease.py %s %s --repeat 0 --email %s --rosdistro %s'%(info[0], info[1], email, ros_distro)
