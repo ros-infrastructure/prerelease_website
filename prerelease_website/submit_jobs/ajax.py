@@ -3,7 +3,9 @@ from dajaxice.decorators import dajaxice_register
 from django.utils import simplejson
 import logging
 import os
+import rospkg
 import subprocess
+import yaml
 from models import WetRosDistro, DryRosDistro
 
 logger = logging.getLogger('submit_jobs')
@@ -37,14 +39,15 @@ def run_jobs_ajax(request, email, ros_distro, repo_list):
    if '_dry' in ros_distro:
       ros_distro = ros_distro.split("_")[0]
 
-      f = open('/var/www/prerelease_website/jenkins.conf')
-      info = f.read().split(',')
+      conf_file = os.path.join(rospkg.get_ros_home(), 'buildfarm', 'server.yaml')
+      f = open(conf_file)
+      info = yaml.load(f.read())
 
       script = find_executable('generate_groovy_prerelease.py')
       if not script:
          logger.error('Could not find generate_groovy_prerelease.py script')
          assert False
-      command = '%s %s %s --repeat 0 --email %s --rosdistro %s'%(script, info[0], info[1], email, ros_distro)
+      command = '%s %s %s --repeat 0 --email %s --rosdistro %s'%(script, info['username'], info['password'], email, ros_distro)
 
       for r in repo_list:
          command += " --stack %s"%r
