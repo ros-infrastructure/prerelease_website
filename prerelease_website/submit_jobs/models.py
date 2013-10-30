@@ -1,7 +1,7 @@
 import yaml
 import urllib2
 import logging
-from rosdistro import get_index, get_index_url, get_source_file, get_release_file
+from rosdistro import get_index, get_index_url, get_release_cache, get_source_file
 from rosdistro.manifest_provider import get_release_tag
 import rospkg.distro
 #from django.db import models
@@ -37,7 +37,7 @@ class WetRosDistro(object):
 
         try:
             index = get_index(get_index_url())
-            self._release_file = get_release_file(index, distro)
+            self._release_file = get_release_cache(index, distro).release_file
             self._source_file = get_source_file(index, distro)
         except:
             logger.error("Could not load rosdistro release or test file")
