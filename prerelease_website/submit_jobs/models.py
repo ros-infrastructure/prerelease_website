@@ -1,7 +1,7 @@
 import yaml
 import urllib2
 import logging
-from rosdistro import get_index, get_index_url, get_release_cache, get_source_file
+from rosdistro import get_index, get_index_url, get_distribution_cache
 from rosdistro.manifest_provider import get_release_tag
 import rospkg.distro
 #from django.db import models
@@ -37,20 +37,23 @@ class WetRosDistro(object):
 
         try:
             index = get_index(get_index_url())
-            self._release_file = get_release_cache(index, distro).release_file
-            self._source_file = get_source_file(index, distro)
+            self._distribution_file = get_distribution_cache(index, distro).distribution_file
         except:
-            logger.error("Could not load rosdistro release or test file")
-            self._release_file = None
-            self._source_file = None
+            logger.error("Could not load rosdistro distribution cache")
+            self._distribution_file = None
 
     def get_info(self):
         res = {}
-        for name in self._release_file.repositories.keys() + self._source_file.repositories.keys():
-            res[name] = {'distro': self.distro + "_wet", 'version': [], 'url': [], 'branch': []}
+        for name in self._distribution_file.repositories.keys():
+            repo = self._distribution_file.repositories[name]
+            if repo.release_repository or repo.source_repository:
+                res[name] = {'distro': self.distro + "_wet", 'version': [], 'url': [], 'branch': []}
 
         # first add devel
-        for name, r in self._source_file.repositories.iteritems():
+        for name in self._distribution_file.repositories.keys():
+            r = self._distribution_file.repositories[name].source_repository
+            if not r:
+                continue
             if not r.version:
                 res[name]['branch'].append("")
             else:
@@ -59,7 +62,10 @@ class WetRosDistro(object):
             res[name]['url'].append(r.url)
 
         # then add release
-        for name, r in self._release_file.repositories.iteritems():
+        for name in self._distribution_file.repositories.keys():
+            r = self._distribution_file.repositories[name].release_repository
+            if not r:
+                continue
             if 'release' not in r.tags:
                 continue
             release_tag = get_release_tag(r, '{package}')
@@ -79,34 +85,34 @@ class WetRosDistro(object):
         return res
 
     def get_repos(self):
-        if self._release_file is None or self._source_file is None:
+        if self._distribution_file is None:
             return []
-        return list(set(self._release_file.repositories.keys() + self._source_file.repositories.keys()))
+        return [repo_name for repo_name in self._distribution_file.repositories.keys() if self._distribution_file.repositories[repo_name].release_repository is not None or self._distribution_file.repositories[repo_name].source_repository is not None]
 
     def is_released(self, repo_name):
-        if self._release_file is None:
+        if self._distribution_file is None:
             return False
-        return repo_name in self._release_file.repositories
+        return repo_name in self._distribution_file.repositories and self._distribution_file.repositories[repo_name].release_repository is not None
 
     def get_release_info(self, repo_name):
-        if self._release_file is None:
+        if self._distribution_file is None:
             return None
-        return self._release_file.repositories[repo_name]
+        return self._distribution_file.repositories[repo_name].release_repository
 
     def is_devel(self, repo_name):
-        if self._source_file is None:
+        if self._distribution_file is None:
             return False
-        return repo_name in self._source_file.repositories
+        return repo_name in self._distribution_file.repositories and self._distribution_file.repositories[repo_name].source_repository is not None
 
     def get_devel_info(self, repo_name):
-        if self._source_file is None:
+        if self._distribution_file is None:
             return None
-        return self._source_file.repositories[repo_name]
+        return self._distribution_file.repositories[repo_name].source_repository
 
     def get_repo_version(self, repo_name):
-        if repo_name not in self._release_file.repositories:
+        if repo_name not in self._distribution_file.repositories:
             logger.error("Repo %s not in distro file for %s" % (repo_name, self.distro))
             return None
 
         #Since debian information is tacked onto the version #, we split
-        return self._release_file.repositories[repo_name]['version'].split('-')[0]
+        return self._distribution_file.repositories[repo_name].release_repository.version.split('-')[0]
