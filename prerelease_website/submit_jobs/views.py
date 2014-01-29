@@ -5,6 +5,7 @@ import logging
 
 logger = logging.getLogger('submit_jobs')
 
+
 def select_distro(request):
     return render_to_response('select_distro.html', {})
 
@@ -21,8 +22,8 @@ def run_job(request):
     i = 1
     repos = []
     while True:
-        if 'repo_%d'%i in data and 'version_%d'%i in data:
-            repos.append((data['repo_%d'%i], data['version_%d'%i]))
+        if 'repo_%d' % i in data and 'version_%d' % i in data:
+            repos.append((data['repo_%d' % i], data['version_%d' % i]))
             i += 1
         else:
             break
@@ -31,4 +32,3 @@ def run_job(request):
                               {'email': data['email'], 'ros_distro': data['ros_distro'],
                                'repos': repos},
                               context_instance=RequestContext(request))
-

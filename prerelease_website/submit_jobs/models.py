@@ -1,5 +1,3 @@
-import yaml
-import urllib2
 import logging
 from rosdistro import get_index, get_index_url, get_distribution_cache
 from rosdistro.manifest_provider import get_release_tag

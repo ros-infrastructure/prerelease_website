@@ -3,11 +3,11 @@ from dajaxice.decorators import dajaxice_register
 from django.utils import simplejson
 import datetime
 import os
-import yaml
 from prerelease_website.rosinstall_gen.views import get_rosinstall
 
 import logging
 logger = logging.getLogger('submit_jobs')
+
 
 @dajaxice_register
 def get_rosinstall_ajax(request, distro, packages, gen_type):

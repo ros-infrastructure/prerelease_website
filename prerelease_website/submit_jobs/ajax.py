@@ -13,76 +13,73 @@ logger = logging.getLogger('submit_jobs')
 
 @dajaxice_register
 def get_repo_list_ajax(request, ros_distro):
-   dry_distro = DryRosDistro(ros_distro)
-   repo_list = dry_distro.get_info()
-   logger.info("Got dry repo list")
+    dry_distro = DryRosDistro(ros_distro)
+    repo_list = dry_distro.get_info()
+    logger.info("Got dry repo list")
 
-   wet_distro = WetRosDistro(ros_distro)
-   for name, d in wet_distro.get_info().iteritems():
-       if repo_list.has_key(name):
-           logger.info("%s is in both wet and dry rosdistro!!!!"%name)
-       else:
-          repo_list[name] = d
-   logger.info("Got wet repo list")
+    wet_distro = WetRosDistro(ros_distro)
+    for name, d in wet_distro.get_info().iteritems():
+        if name in repo_list:
+            logger.info("%s is in both wet and dry rosdistro!!!!" % name)
+        else:
+            repo_list[name] = d
+    logger.info("Got wet repo list")
 
-   return simplejson.dumps({'repo_list': repo_list})
+    return simplejson.dumps({'repo_list': repo_list})
 
 
 @dajaxice_register
 def run_jobs_ajax(request, email, ros_distro, repo_list):
-   logger.info("---")
-   logger.info(email)
-   logger.info(ros_distro)
-   logger.info(repo_list)
-   logger.info("---")
+    logger.info("---")
+    logger.info(email)
+    logger.info(ros_distro)
+    logger.info(repo_list)
+    logger.info("---")
 
-   if '_dry' in ros_distro:
-      ros_distro = ros_distro.split("_")[0]
+    if '_dry' in ros_distro:
+        ros_distro = ros_distro.split("_")[0]
 
-      conf_file = os.path.join(rospkg.get_ros_home(), 'buildfarm', 'server.yaml')
-      f = open(conf_file)
-      info = yaml.load(f.read())
+        conf_file = os.path.join(rospkg.get_ros_home(), 'buildfarm', 'server.yaml')
+        f = open(conf_file)
+        info = yaml.load(f.read())
 
-      script = find_executable('generate_groovy_prerelease.py')
-      if not script:
-         logger.error('Could not find generate_groovy_prerelease.py script')
-         assert False
-      command = '%s %s %s --repeat 0 --email %s --rosdistro %s'%(script, info['username'], info['password'], email, ros_distro)
+        script = find_executable('generate_groovy_prerelease.py')
+        if not script:
+            logger.error('Could not find generate_groovy_prerelease.py script')
+            assert False
+        command = '%s %s %s --repeat 0 --email %s --rosdistro %s' % (script, info['username'], info['password'], email, ros_distro)
 
-      for r in repo_list:
-         command += " --stack %s"%r
+        for r in repo_list:
+            command += " --stack %s" % r
 
-   elif '_wet' in ros_distro:
-      ros_distro = ros_distro.split("_")[0]
-      script = find_executable('generate_jenkins_prerelease')
-      if not script:
-         logger.error('Could not find generate_jenkins_prerelease script')
-         assert False
-      command = "%s %s %s %s"%(script, email, ros_distro, ' '.join(['%s %s'%(r, v) for r, v in repo_list.iteritems()]))
+    elif '_wet' in ros_distro:
+        ros_distro = ros_distro.split("_")[0]
+        script = find_executable('generate_jenkins_prerelease')
+        if not script:
+            logger.error('Could not find generate_jenkins_prerelease script')
+            assert False
+        command = "%s %s %s %s" % (script, email, ros_distro, ' '.join(['%s %s' % (r, v) for r, v in repo_list.iteritems()]))
 
-   else:
-      assert False, 'Neither wet nor dry'
+    else:
+        assert False, 'Neither wet nor dry'
 
+    logger.info("Executing command")
+    logger.info(command)
+    helper = subprocess.Popen(['bash', '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    res, err = helper.communicate()
+    logger.info(str(res))
+    logger.info(str(err))
 
-   logger.info("Executing command")
-   logger.info(command)
-   helper = subprocess.Popen(['bash', '-c', command], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-   res, err = helper.communicate()
-   logger.info(str(res))
-   logger.info(str(err))
+    res = res.replace('<', '<a href="')
+    res = res.replace('>', '">the Jenkins server</a>')
+    res = res.replace('\n', '<br>')
+    logger.info(str(res))
 
+    success = 'true'
+    if helper.returncode != 0:
+        success = 'false'
 
-
-   res = res.replace('<', '<a href="')
-   res = res.replace('>', '">the Jenkins server</a>')
-   res = res.replace('\n', '<br>')
-   logger.info(str(res))
-
-   success = 'true'
-   if helper.returncode != 0:
-      success = 'false'
-
-   return simplejson.dumps({'success': success, 'command': command, 'std_out': res, 'std_err': err})
+    return simplejson.dumps({'success': success, 'command': command, 'std_out': res, 'std_err': err})
 
 
 def find_executable(file_name):
