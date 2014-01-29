@@ -13,6 +13,7 @@ logger = logging.getLogger('submit_jobs')
 def landing_page(request):
     return render_to_response('landing_page.html', {})
 
+
 def dry_raw(request, distro, packages):
     try:
         rosinstall = get_rosinstall(distro, packages.split(','), dry_only=True)
@@ -20,14 +21,17 @@ def dry_raw(request, distro, packages):
         return HttpResponseServerError("Error generating rosinstall file: {0}".format(e))
     return render_to_response('rosinstall.html', {'rosinstall': rosinstall})
 
+
 def dry_index(request, distro, packages):
     logger.info('Distro: %s' % distro)
     logger.info('Packages: %s' % packages.split(','))
-    return render_to_response('index.html', {'distro': distro, 
+    return render_to_response('index.html', {'distro': distro,
                                              'packages': packages.split(','),
                                              'gen_type': 'dry',
-                                            },
-                                             context_instance=RequestContext(request))
+                                             },
+                              context_instance=RequestContext(request))
+
+
 def raw(request, distro, packages):
     try:
         rosinstall = get_rosinstall(distro, packages.split(','), wet_only=True)
@@ -35,13 +39,15 @@ def raw(request, distro, packages):
         return HttpResponseServerError("Error generating rosinstall file: {0}".format(e))
     return render_to_response('rosinstall.html', {'rosinstall': rosinstall})
 
+
 def index(request, distro, packages):
     logger.info('Distro: %s' % distro)
     logger.info('Packages: %s' % packages.split(','))
-    return render_to_response('index.html', {'distro': distro, 
-                                             'packages': packages.split(','), 
+    return render_to_response('index.html', {'distro': distro,
+                                             'packages': packages.split(','),
                                              'gen_type': 'wet'},
-                                             context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
+
 
 def combined_raw(request, distro, packages):
     try:
@@ -50,13 +56,15 @@ def combined_raw(request, distro, packages):
         return HttpResponseServerError("Error generating rosinstall file: {0}".format(e))
     return render_to_response('rosinstall.html', {'rosinstall': rosinstall})
 
+
 def combined_index(request, distro, packages):
     logger.info('Distro: %s' % distro)
     logger.info('Packages: %s' % packages.split(','))
-    return render_to_response('index.html', {'distro': distro, 
-                                             'packages': packages.split(','), 
+    return render_to_response('index.html', {'distro': distro,
+                                             'packages': packages.split(','),
                                              'gen_type': 'combined'},
-                                             context_instance=RequestContext(request))
+                              context_instance=RequestContext(request))
+
 
 def get_rosinstall(distro_name, names, wet_only=False, dry_only=False):
     rosinstall_data = generate_rosinstall(distro_name, names, wet_only=wet_only, dry_only=dry_only, deps=True, tar=True)

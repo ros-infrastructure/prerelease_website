@@ -1,5 +1,4 @@
-from django.conf.urls.defaults import patterns, include, url
-from django.views.generic.simple import redirect_to
+from django.conf.urls.defaults import patterns, url
 
 urlpatterns = patterns('prerelease_website.rosinstall_gen.views',
     url(r'^$', 'landing_page'),
@@ -8,5 +7,5 @@ urlpatterns = patterns('prerelease_website.rosinstall_gen.views',
     url(r'^generate/combined/raw/(?P<distro>.*)/(?P<packages>.*)$', 'combined_raw'),
     url(r'^generate/combined/(?P<distro>.*)/(?P<packages>.*)$', 'combined_index'),
     url(r'^generate/raw/(?P<distro>.*)/(?P<packages>.*)$', 'raw'),
-    url(r'^generate/(?P<distro>.*)/(?P<packages>.*)$', 'index'),
+    url(r'^generate/(?P<distro>.*)/(?P<packages>.*)$', 'index')
 )
