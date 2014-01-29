@@ -12,10 +12,15 @@ logger = logging.getLogger('submit_jobs')
 class DryRosDistro(object):
     def __init__(self, distro):
         self.distro = distro
-        self.distro_obj = rospkg.distro.load_distro(rospkg.distro.distro_uri(distro))
+        if distro == 'groovy':
+            self.distro_obj = rospkg.distro.load_distro(rospkg.distro.distro_uri(distro))
+        else:
+            self.distro_obj = None
 
     def get_info(self):
         res = {}
+        if not self.distro_obj:
+            return res
         for name, s in self.distro_obj.stacks.iteritems():
             if s.vcs_config.type == 'svn':
                 url = s.vcs_config.anon_dev
@@ -44,6 +49,8 @@ class WetRosDistro(object):
 
     def get_info(self):
         res = {}
+        if not self._distribution_file:
+            return res
         for name in self._distribution_file.repositories.keys():
             repo = self._distribution_file.repositories[name]
             if repo.release_repository or repo.source_repository:

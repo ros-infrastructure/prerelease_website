@@ -69,16 +69,16 @@ function on_form()
 
 function on_email() { 
     email = $("#email").val();
-    console.log("on_email: " + email);
+    //console.log("on_email: " + email);
 
     // check if email is valid
     if (/^([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x22([^\x0d\x22\x5c\x80-\xff]|\x5c[\x00-\x7f])*\x22))*\x40([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d)(\x2e([^\x00-\x20\x22\x28\x29\x2c\x2e\x3a-\x3c\x3e\x40\x5b-\x5d\x7f-\xff]+|\x5b([^\x0d\x5b-\x5d\x80-\xff]|\x5c[\x00-\x7f])*\x5d))*$/.test( email )){
 	$("#btn_submit").attr("disabled", false);
-	console.log("Good email "+email);
+	//console.log("Good email "+email);
     }
     else{
 	$("#btn_submit").attr("disabled", "disabled");
-	console.log("Bad email "+email);
+	//console.log("Bad email "+email);
     }
 }
 
@@ -90,6 +90,7 @@ function get_version(repo_id)
     var id = repo_id.split('_')[1];
     var repo = $("#repo_"+id).val();
     console.log("Get version with id " + repo_id + " of repo " + repo);
+    if (!repo) return;
 
     // set ros distro (including wet/dry) based on first select
     if (id == 1){
