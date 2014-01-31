@@ -38,6 +38,7 @@ Place the following into /etc/apache2/sites-enabled/prerelease
 
 Run the following
 python manage.py collectstatic <- In the main site directory
+# ensure that all files under static_autoserver (especially static_autoserve/dajaxice/dajaxice.core.js) is readable by Apache
 sudo a2dissite default <- Disable the default site, probably should update virtual hosts configuration for deployment, but OK for local tests
 sudo a2ensite prerelease
 #Make sure that the www-data user has permissions to your site
