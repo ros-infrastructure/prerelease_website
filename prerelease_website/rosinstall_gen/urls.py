@@ -1,6 +1,7 @@
-from django.conf.urls.defaults import patterns, url
+from django.conf.urls import patterns, url
 
-urlpatterns = patterns('prerelease_website.rosinstall_gen.views',
+urlpatterns = patterns(
+    'prerelease_website.rosinstall_gen.views',
     url(r'^$', 'landing_page'),
     url(r'^generate/dry/raw/(?P<distro>.*)/(?P<packages>.*)$', 'dry_raw'),
     url(r'^generate/dry/(?P<distro>.*)/(?P<packages>.*)$', 'dry_index'),

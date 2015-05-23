@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Generate a local prerelease command for {{distro}}{% endblock %}
+
+{% block js %}
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="//www.fuelcdn.com/fuelux/3.6.3/css/fuelux.min.css" rel="stylesheet">
+<link href="/static/css/bootstrap-spinedit.css" rel="stylesheet">
+<link href="/static/css/{{distro}}.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="page-header">
+    <img class="pull-right" style="height: 100px;" src="/static/images/{{distro}}.png" />
+    <h1>Generate a Prerelease Command for {{distro}}</h1>
+    <p class="lead">
+      This page will help you generate a command to run your prelease locally.
+    </p>
+  </div>
+
+  <div class="wizard" data-initialize="wizard" id="prerelease_wizard">
+    <ul class="steps">
+      <li data-step="1" data-name="repository" class="active">
+        <span class="badge">1</span>Select Repositories<span class="chevron"></span>
+      </li>
+      <li data-step="2">
+        <span class="badge">2</span>Additional Options<span class="chevron"></span>
+      </li>
+      <li data-step="3" data-name="template">
+        <span class="badge">3</span>Select Dependents to Test<span class="chevron"></span>
+      </li>
+    </ul>
+    <div class="actions">
+      <button type="button" class="btn btn-default btn-prev">
+        <span class="glyphicon glyphicon-arrow-left"></span>Prev
+      </button>
+      <button type="button" class="btn btn-default btn-next" data-last="Generate Command"
+              disabled="disabled">
+        Next<span class="glyphicon glyphicon-arrow-right"></span>
+      </button>
+    </div>
+    <div class="step-content">
+      <div class="step-pane active sample-pane alert" data-step="1">
+        <div class="loading-repositories" style="display: auto;">
+          <h4>Loading repository data...</h4>
+          <div class="container">
+            <div class="col-md-2 col-md-offset-5 loader"
+                 data-initialize="loader"></div>
+          </div>
+        </div>
+        <div class="selecting-repositories" style="display: none;">
+          <h4>Select one or more repositories to put in the <em>underlay</em>:</h4>
+          <div class="repositories">
+          </div>
+          <button class="btn btn-success add-repository">
+            <span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add a repository
+          </button>
+        </div>
+      </div>
+      <div class="step-pane sample-pane" data-step="2">
+        <h4>Some additional options:</h4>
+        <form>
+          <div class="form-group">
+            <label for="ros_buildfarm_url">Url of the ROS build farm config:</label>
+            <div class="placard" data-initialize="placard" id="ros_buildfarm_url" style="width: 100%;">
+              <div class="placard-popup"></div>
+              <input class="form-control placard-field" type="text"/>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="os_version">Version of Ubuntu to test in:</label>
+            <select id="os_version">
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="step-pane sample-pane" data-step="3">
+        <div class="col-md-2 col-md-offset-5 loader pull-right" style="display: none;"
+             id="dependents_loader" data-initialize="loader"></div>
+        <h4>Choose dependent packages to test in the <em>overlay</em>:</h4>
+        <div class="alert alert-danger" id="step_2_error" style="display: none;">
+        </div>
+        <form>
+          <div class="form-group">
+            <label for="rdepends_level">Recursive dependency level:</label>
+            <input class="aSpinEdit" type="text" value="1" id="rdepends_level" />
+          </div>
+          <div class="form-group">
+            <label for="dependents_to_be_built">Dependents to test:</label>
+            <div class="pillboxes pillbox bg-success" data-initialize="pillbox" id="dependents_to_be_built">
+              <ul class="clearfix pill-group">
+              </ul>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dependents_to_be_excluded">Dependents to exclude:</label>
+            <div class="pillboxes pillbox bg-danger" data-initialize="pillbox" id="dependents_to_be_excluded">
+              <ul class="clearfix pill-group">
+              </ul>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="dependents_to_be_implicitly_excluded">Implicitly excluded dependents:</label>
+            <div class="pillbox" data-readonly="readonly" data-initialize="pillbox"
+                 id="dependents_to_be_implicitly_excluded">
+              <ul class="clearfix pill-group">
+              </ul>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="extra_packages">Aribtrary extra packages:</label>
+            <div class="pillbox bg-primary" data-initialize="pillbox"
+                 id="extra_packages">
+              <ul class="clearfix pill-group">
+                <li class="pillbox-input-wrap btn-group">
+                  <a class="pillbox-more">and <span class="pillbox-more-count"></span> more...</a>
+                  <input type="text" class="form-control dropdown-toggle pillbox-add-item" placeholder="add item">
+                  <button type="button" class="dropdown-toggle sr-only">
+                    <span class="caret"></span>
+                    <span class="sr-only">Toggle Dropdown</span>
+                  </button>
+                  <ul class="suggest dropdown-menu" role="menu" data-toggle="dropdown" data-flip="auto"></ul>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" id="command_modal">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content" style="padding: 10px;">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Setup your system:</h3>
+            </div>
+            <div class="panel-body">
+              Before running the generated command, you need to setup your system.<br/>
+              You'll find instructions for this at this website (Ubuntu 14.04 recommended):
+              <a href="http://wiki.ros.org/regression_tests#Prerelease_Tests">http://wiki.ros.org/regression_tests#Prerelease_Tests</a>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Running the prerelease:</h3>
+            </div>
+            <div class="panel-body">
+              After setting up your machine run these commands on in a termainal:
+              <pre id="command_output">
+                command goes here
+              </pre>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              Troubleshooting a prerelease:<h3 class="panel-title">
+            </div>
+            <div class="panel-body">
+              You can find documentation about troubleshooting prereleases that fail here:
+              <a href="http://wiki.ros.org/regression_tests#Prerelease_Tests">http://wiki.ros.org/regression_tests#Prerelease_Tests</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr/>
+  <div class="well note">
+    <h4>What's going on here?</h4>
+    <p>
+      This page helps you generate a command which you can run in the terminal on a Ubuntu machine which executes a "prerelease".<br/>
+      To learn more about prereleases and what they do, see:
+      <a href="http://wiki.ros.org/bloom/Tutorials/PrereleaseTest?distro={{distro}}">http://wiki.ros.org/bloom/Tutorials/PrereleaseTest?distro={{distro}}</a>
+    </p>
+  </div>
+
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="//www.fuelcdn.com/fuelux/3.6.3/js/fuelux.min.js"></script>
+<script src="/static/js/bootstrap-spinedit.js" type="text/javascript" charset="utf-8"></script>
+<script src="/static/js/generate_command.js" type="text/javascript" charset="utf-8"></script>
+<script type="text/javascript">
+  $(window).load(function() {
+    $('#rdepends_level').spinedit({
+        minimum: 0,
+        step: 1
+    });
+    $('#rdepends_level').on('change', function() {
+      console.log("here");
+      if ($('#rdepends_level').spinedit('value'))
+      {
+        update_rdepends();
+      }
+    });
+    $('#rdepends_level').on('keydown', function(e) {
+      console.log("here");
+      if (e.keyCode == 13 && $('#rdepends_level').spinedit('value'))
+      {
+        update_rdepends();
+      }
+    });
+    ros_distro = '{{distro}}';
+    load_repositories(ros_distro);
+  });
+</script>
+
+{% endblock %}

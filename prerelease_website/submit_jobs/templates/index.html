@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Select a ROS distribution{% endblock %}
+
+{% block js %}
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
+<link href="/static/css/index.css" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+
+<div class="ribbon-wrapper-green">
+  <div class="ribbon-green">
+    <a href="/select_distro">Old Site</a>
+  </div>
+</div>
+
+<div class="container-fluid">
+  <div class="row text-center">
+    <div class="page-header text-center">
+      <h1>Select a ROS distribution to Generate a Prerelease Command</h1>
+    </div>
+  </div>
+  <div class="row text-center distro-row">
+    <div style="display: table-row;">
+      <div class="col-lg-6 indigo-column text-center">
+        <a href="/indigo">
+          <img class="img-responsive" src="/static/images/indigo.png" title="Indigo" />
+          <br/>
+          Indigo Igloo
+        </a>
+      </div>
+      <div class="col-lg-6 jade-column text-center">
+        <a href="/jade">
+          <img class="img-responsive" src="/static/images/jade.png" title="Jade" />
+          <br/>
+          Jade Turtle
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="row footer-row">
+    <div class="page-footer">
+      <div class="col-sm-5">
+        Docs: <a href="http://wiki.ros.org/regression_tests">http://wiki.ros.org/regression_tests</a>
+      </div>
+      <div class="col-sm-2 text-center">
+        Hosted by the <a href="http://www.osrfoundation.org/">OSRF</a>
+      </div>
+      <div class="col-sm-5 text-right">
+        Source: <a href="https://github.com/ros-infrastructure/prerelease_website">https://github.com/ros-infrastructure/prerelease_website</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+  function adjust_distro_row_height()
+  {
+    var height = $(window).height();
+    var distro_row_position = $('.distro-row').position().top;
+    // var footer_height = $('.page-footer').height();
+    var footer_height = 20;
+    var diff = height - distro_row_position - footer_height;
+    if (diff >= 500)
+    {
+      $('.distro-row').height(diff);
+    }
+  }
+  $( window ).resize(function() {
+    adjust_distro_row_height();
+  });
+  $( window ).load(function() {
+    adjust_distro_row_height();
+  });
+</script>
+
+{% endblock %}

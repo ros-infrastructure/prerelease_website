@@ -4,3 +4,4 @@
 local_settings.py
 prerelease_website/logfile
 prerelease_website/static_autoserve
+.DS_Store

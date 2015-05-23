@@ -32,3 +32,15 @@ def run_job(request):
                               {'email': data['email'], 'ros_distro': data['ros_distro'],
                                'repos': repos},
                               context_instance=RequestContext(request))
+
+
+def index(request):
+    return render_to_response('index.html', {})
+
+
+def generate_command(request, distro):
+    return render_to_response(
+        'generate_command.html',
+        {'distro': distro},
+        context_instance=RequestContext(request)
+    )
