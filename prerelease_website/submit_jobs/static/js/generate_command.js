@@ -213,7 +213,7 @@ function get_repository_entry(num)
                    "the ROS distribution.yaml file.";
   repo_help_msg += "The 'devel' entry will usually pull from the projects " +
                    "upstream development repository.";
-  repo_help_msg += "Whereas the 'latest' entry will pull the latest released " +
+  repo_help_msg += "Whereas the 'latest' entry will pull the most recently released " +
                    "version from the projects release repository.";
   var e = '';
   e += '<div class="repo-entry" id="repo_entry_' + num + '"';
@@ -479,9 +479,9 @@ function update_command_output()
     'cd /tmp/prerelease_job</br>' +
     'generate_prerelease_script.py \\<br/>' +
     '  ' + build_farm_config_url + ' \\<br/>' +
-    '  ' + ros_distro + ' ubuntu ' + os_version + ' amd64 \\<br/>' +
-    '  --level ' + rdepends_level + ' \\<br/>' +
+    '  ' + ros_distro + ' default ubuntu ' + os_version + ' amd64 \\<br/>' +
     '  ' + selected_repos.join(' ') + ' \\<br/>' +
+    '  --level ' + rdepends_level + ' \\<br/>' +
     '  --output-dir ./';
   if (excludes.length > 0)
   {

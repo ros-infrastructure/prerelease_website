@@ -2,6 +2,9 @@ INSTALLATION
 - Install python-django
 - Make sure to install dajax and dajaxice http://www.dajaxproject.com/
   - sudo pip install django_dajax
+- Install rosdistro, ros_buildfarm, vcstools, git, mercurial, svn, and catkin_pkg
+ - sudo pip install rosdistro ros_buildfarm vcstools catkin_pkg
+ - sudo apt-get install git mercurial svn
 
 APACHE
 Note: All paths must include the main project for use with apache.
