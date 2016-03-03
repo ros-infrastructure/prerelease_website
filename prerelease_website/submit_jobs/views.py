@@ -6,16 +6,6 @@ import logging
 logger = logging.getLogger('submit_jobs')
 
 
-def select_distro(request):
-    return render_to_response('select_distro.html', {})
-
-
-def create_job(request, distro):
-    return render_to_response('create_job.html',
-                              {'distro': distro},
-                              context_instance=RequestContext(request))
-
-
 def run_job(request):
     data = request.POST
 
