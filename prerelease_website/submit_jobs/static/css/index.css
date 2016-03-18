@@ -21,7 +21,7 @@ html, body {
   height: 100%;
 }
 
-.indigo-column, .jade-column {
+.indigo-column, .jade-column, .kinetic-column {
   float: none;
   display: table-cell;
 }
@@ -41,7 +41,7 @@ html, body {
 {
   height: 100%;
   background: #051A3A;
-  width: 50%;
+  width: 33%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border-right: 1px solid #eee;
@@ -55,7 +55,7 @@ html, body {
 {
   height: 100%;
   background: #19A36A;
-  width: 50%;
+  width: 33%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
@@ -64,6 +64,21 @@ html, body {
 .jade-column a {
   color: #FCF277;
 }
+
+.kinetic-column
+{
+  height: 100%;
+  background: #000000;
+  width: 33%;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+}
+
+.kinetic-column a {
+  color: #FF0000;
+}
+
 
 
 /*Corner Ribbon*/
