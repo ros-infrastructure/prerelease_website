@@ -17,7 +17,7 @@ from models import WetRosDistro
 
 logger = logging.getLogger('submit_jobs')
 
-BUILD_FARM_CONFIG_URL = 'https://raw.githubusercontent.com/ros-infrastructure/ros_buildfarm_config/master/index.yaml'
+BUILD_FARM_CONFIG_URL = 'https://raw.githubusercontent.com/ros-infrastructure/ros_buildfarm_config/production/index.yaml'
 
 
 class temporary_directory(object):
