@@ -21,7 +21,7 @@ html, body {
   height: 100%;
 }
 
-.indigo-column, .jade-column, .kinetic-column {
+.indigo-column, .jade-column, .kinetic-column, .lunar-column {
   float: none;
   display: table-cell;
 }
@@ -41,7 +41,7 @@ html, body {
 {
   height: 100%;
   background: #051A3A;
-  width: 33%;
+  width: 25%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border-right: 1px solid #eee;
@@ -55,7 +55,7 @@ html, body {
 {
   height: 100%;
   background: #19A36A;
-  width: 33%;
+  width: 25%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
@@ -69,7 +69,7 @@ html, body {
 {
   height: 100%;
   background: #000000;
-  width: 33%;
+  width: 25%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
@@ -77,6 +77,20 @@ html, body {
 
 .kinetic-column a {
   color: #EB2E28;
+}
+
+.lunar-column
+{
+  height: 100%;
+  background: #676767;
+  width: 25%;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  border-left: 1px solid #eee;
+}
+
+.lunar-column a {
+  color: #FFFFFF;
 }
 
 
