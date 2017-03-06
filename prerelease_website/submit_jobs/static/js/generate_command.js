@@ -14,7 +14,7 @@ function load_repositories_cb(repo_list)
   var ubuntu_platforms = repo_list.release_platforms.ubuntu;
   if (ubuntu_platforms)
   {
-    var prefered_list = ['trusty'];
+    var prefered_list = ['trusty', 'xenial'];
     $.each(ubuntu_platforms, function (index, item) {
       if ($.inArray(item, prefered_list) != -1)
       {
