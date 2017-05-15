@@ -513,9 +513,14 @@ function update_command_output()
   if (non_custom_selected_repo_names.length > 0) {
     msg += '  ' + non_custom_selected_repo_names.join(' ') + ' \\<br/>';
   }
+  var custom_repo_in_msg = false;
   for (var repo_name in custom_selected_repos) {
     if (!custom_selected_repos.hasOwnProperty(repo_name)) {
       continue;
+    }
+    if (!custom_repo_in_msg) {
+      msg += '  --custom-repo \\<br/>';
+      custom_repo_in_msg = true;
     }
     var repo_num = custom_selected_repos[repo_name].entry_num;
     var repo_version_index = $('#repo_version_' + repo_num)[0].selectedIndex;
@@ -527,7 +532,7 @@ function update_command_output()
       var package_name = packages[j];
       var package_specific_branch = branch.replace("{package}", package_name);
       msg +=
-        '  --custom-repo ' +
+        '    ' +
         package_name + ':' + vcs + ':' + url + ':' + package_specific_branch + ' \\<br/>';
     }
   }
