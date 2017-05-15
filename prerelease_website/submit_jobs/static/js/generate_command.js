@@ -87,7 +87,7 @@ function enable_wizard_buttons(prev)
 
 function update_next_button_repositories()
 {
-  if (get_selected_repos().length == 0)
+  if (get_selected_repo_names().length == 0)
   {
     disable_wizard_buttons(false);
   }
@@ -258,7 +258,7 @@ function get_repository_entry(num)
   return e;
 }
 
-function get_selected_repos()
+function get_selected_repo_names()
 {
   var selected_repos = new Array();
   $('.repo-name-select').each(function(index, element) {
@@ -267,6 +267,22 @@ function get_selected_repos()
     }
   });
   return selected_repos;
+}
+
+function get_selected_repos()
+{
+  var dict = {};
+  $('.repo-entry').each(function(index, element) {
+    var item = $(element);
+    var repo = item.find('.repo-name-select').val();
+    var repo_num = item.attr('entry-num');
+    if ($('.repo-name-select', this).selectedIndex != 0) {
+      dict[repo] = {
+        entry_num: repo_num
+      }
+    }
+  });
+  return dict;
 }
 
 function get_dictionary_keys_sorted(dict)
@@ -287,7 +303,7 @@ function get_dictionary_keys_sorted(dict)
 
 function update_repo_selects()
 {
-  var selected_repos = get_selected_repos();
+  var selected_repos = get_selected_repo_names();
   $('.repo-name-select').each(function(index, element) {
     var new_select_index = 0;
     var original_selection = element.value;
@@ -464,6 +480,20 @@ function update_command_output()
 {
   var os_version = $('#os_version').val();
   var selected_repos = get_selected_repos();
+  var custom_selected_repos = {};
+  var non_custom_selected_repo_names = Array();
+  for (var key in selected_repos) {
+    if (!selected_repos.hasOwnProperty(key)) {
+      continue;
+    }
+    var repo_num = selected_repos[key].entry_num;
+    var repo_version_index = $('#repo_version_' + repo_num)[0].selectedIndex;
+    if (repositories[key].branch[repo_version_index].includes("{package}")) {
+      custom_selected_repos[key] = selected_repos[key];
+    } else {
+      non_custom_selected_repo_names.push(key);
+    }
+  }
   var excludes = new Array();
   $.each($('#dependents_to_be_excluded').pillbox('items'), function(index, item) {
     excludes[index] = item.text;
@@ -479,8 +509,34 @@ function update_command_output()
     'cd /tmp/prerelease_job</br>' +
     'generate_prerelease_script.py \\<br/>' +
     '  ' + build_farm_config_url + ' \\<br/>' +
-    '  ' + ros_distro + ' default ubuntu ' + os_version + ' amd64 \\<br/>' +
-    '  ' + selected_repos.join(' ') + ' \\<br/>' +
+    '  ' + ros_distro + ' default ubuntu ' + os_version + ' amd64 \\<br/>';
+  if (non_custom_selected_repo_names.length > 0) {
+    msg += '  ' + non_custom_selected_repo_names.join(' ') + ' \\<br/>';
+  }
+  var custom_repo_in_msg = false;
+  for (var repo_name in custom_selected_repos) {
+    if (!custom_selected_repos.hasOwnProperty(repo_name)) {
+      continue;
+    }
+    if (!custom_repo_in_msg) {
+      msg += '  --custom-repo \\<br/>';
+      custom_repo_in_msg = true;
+    }
+    var repo_num = custom_selected_repos[repo_name].entry_num;
+    var repo_version_index = $('#repo_version_' + repo_num)[0].selectedIndex;
+    var packages = repositories[repo_name].package_names[repo_version_index];
+    var branch = repositories[repo_name].branch[repo_version_index];
+    var vcs = repositories[repo_name].vcs[repo_version_index];
+    var url = repositories[repo_name].url[repo_version_index];
+    for (var j = 0; j < packages.length; j++) {
+      var package_name = packages[j];
+      var package_specific_branch = branch.replace("{package}", package_name);
+      msg +=
+        '    ' +
+        package_name + ':' + vcs + ':' + url + ':' + package_specific_branch + ' \\<br/>';
+    }
+  }
+  msg +=
     '  --level ' + rdepends_level + ' \\<br/>' +
     '  --output-dir ./';
   if (excludes.length > 0)
