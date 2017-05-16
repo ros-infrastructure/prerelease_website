@@ -10,46 +10,15 @@ Setup
 
 To run this website, you'll need to first setup a development environment.
 
-This project requires Python 3.6, but uses `pyenv` to manage this, especially for machines that do not have Python 3.6.
+This project requires Python 2.6 (as that is what is on our old web server).
 
-pyenv
-~~~~~
+virtualenv
+~~~~~~~~~~
 
-Install `pyenv` following some version of those instructions:
-
-https://github.com/pyenv/pyenv#installation
-
-Make sure you also have the `pyenv-virtualenv` plugin (note that the [pyenv-installer](https://github.com/pyenv/pyenv-installer) already installs this for you):
-
-https://github.com/pyenv/pyenv-virtualenv#installation
-
-Install Python 3.6.1:
+Next use `virtualenv` to create a virtualenv:
 
 ```
-pyenv install 3.6.1
-```
-
-pyenv virtualenv
-~~~~~~~~~~~~~~~~
-
-Next use `pyenv` to create a virtualenv.
-See the usage of it, documented here:
-
-https://github.com/pyenv/pyenv-virtualenv#usage
-
-First, create a new virtualenv:
-
-```
-$ pyenv virtualenv 3.6.1 prerelease_website-3.6.1
-```
-
-Note that the pyenv plugin stores the virtualenv's in the `PYENV_ROOT`, which is probably `~/.pyenv`.
-So give your virtualenv a unique name.
-
-Then source your virtualenv in any terminal where you want to use the project:
-
-```
-$ pyenv activate prerelease_website-3.6.1
+$ python -m virutalenv venv
 ```
 
 Dependencies
