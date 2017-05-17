@@ -14,7 +14,7 @@ import yaml
 from .models import DryRosDistro
 from .models import WetRosDistro
 
-logger = logging.getLogger('submit_jobs')
+logger = logging.getLogger('prerelease')
 
 BUILD_FARM_CONFIG_URL = 'https://raw.githubusercontent.com/ros-infrastructure/ros_buildfarm_config/production/index.yaml'
 
