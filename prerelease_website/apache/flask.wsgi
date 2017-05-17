@@ -4,6 +4,8 @@ import sys
 this_dir = os.path.abspath(os.path.dirname(__file__))
 sys.path.insert(0, os.path.join(this_dir, '..', '..'))
 
+os.environ['PYTHON_EGG_CACHE'] = os.path.join(this_dir, '..', '..', 'python_egg_cache')
+
 site_root = '/var/www/prerelease_website'
 
 activate_this = os.path.join(site_root, 'venv', 'bin', 'activate_this.py')
