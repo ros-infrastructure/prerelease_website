@@ -97,6 +97,8 @@ def get_package_list_for_remote_repo_ajax(
             'repo_entry_number': repo_entry_number,
         })
     except Exception as exc:
+        import traceback
+        traceback.print_exc()
         msg = "Error listing packages in remote repo '{0}': '{1}'".format(
             repo, exc
         )
