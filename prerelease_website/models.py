@@ -3,7 +3,7 @@ from rosdistro import get_index, get_index_url, get_distribution_cache
 from rosdistro.manifest_provider import get_release_tag
 import rospkg.distro
 
-logger = logging.getLogger('submit_jobs')
+logger = logging.getLogger('prerelease')
 
 
 class DryRosDistro(object):

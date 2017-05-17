@@ -1,39 +1,68 @@
+/// This function gets run on load for the window, see generate_command.html
+function generate_command_on_window_load(ros_distro)
+{
+  // initialize rdepends_level
+  $('#rdepends_level').spinedit({
+    minimum: 0,
+    step: 1
+  });
+  // register on change for rdepends_level
+  $('#rdepends_level').on('change', function() {
+    if ($('#rdepends_level').spinedit('value'))
+    {
+      update_rdepends();
+    }
+  });
+  // register on keydown for rdepends_level
+  $('#rdepends_level').on('keydown', function(e) {
+    if (e.keyCode == 13 && $('#rdepends_level').spinedit('value'))
+    {
+      update_rdepends();
+    }
+  });
+  // load and initialize the list of repositories the user will choose from
+  load_repositories(ros_distro);
+}
+
+/// Load the repositories list based on the ros distro with an ajax request
 function load_repositories(ros_distro)
 {
-  Dajaxice.prerelease_website.submit_jobs.get_repo_list_ajax(
-    load_repositories_cb,
-    {'ros_distro': ros_distro}
-  );
+  $.ajax({
+    url: '/get_repo_list/' + ros_distro,
+    success: function(response) {
+      var repo_list = JSON.parse(response);
+      console.log("Received repository list");
+      repositories = repo_list['repo_list'];
+      build_farm_config_url = repo_list['build_farm_config_url'];
+      var ubuntu_platforms = repo_list.release_platforms.ubuntu;
+      if (ubuntu_platforms)
+      {
+        var prefered_list = ['trusty', 'xenial'];
+        $.each(ubuntu_platforms, function (index, item) {
+          if ($.inArray(item, prefered_list) != -1)
+          {
+            $('#os_version').append('<option>' + item + '</option>');
+          }
+        });
+        $.each(ubuntu_platforms, function (index, item) {
+          if ($.inArray(item, prefered_list) == -1)
+          {
+            $('#os_version').append('<option>' + item + '</option>');
+          }
+        });
+      }
+      $('#ros_buildfarm_url').placard('setValue', repo_list['build_farm_config_url']);
+      $('.loading-repositories').hide();
+      $('.selecting-repositories').show();
+      $('.add-repository').trigger("click");
+    },
+    error: function(error) {
+      console.log(error);
+    }
+  });
 }
 
-function load_repositories_cb(repo_list)
-{
-  console.log("Received repository list");
-  repositories = repo_list['repo_list'];
-  build_farm_config_url = repo_list['build_farm_config_url'];
-  var ubuntu_platforms = repo_list.release_platforms.ubuntu;
-  if (ubuntu_platforms)
-  {
-    var prefered_list = ['trusty', 'xenial'];
-    $.each(ubuntu_platforms, function (index, item) {
-      if ($.inArray(item, prefered_list) != -1)
-      {
-        $('#os_version').append('<option>' + item + '</option>');
-      }
-    });
-    $.each(ubuntu_platforms, function (index, item) {
-      if ($.inArray(item, prefered_list) == -1)
-      {
-        $('#os_version').append('<option>' + item + '</option>');
-      }
-    });
-  }
-  $('#ros_buildfarm_url').placard('setValue', repo_list['build_farm_config_url']);
-  $('.loading-repositories').hide();
-  $('.selecting-repositories').show();
-  $('.add-repository').trigger("click");
-}
-
+/// Remove a repository entry by number (used in on click event for the '-' button)
 function remove_repository_entry(num)
 {
   $('#repo_entry_' + num).remove();
@@ -41,6 +70,7 @@ function remove_repository_entry(num)
   update_next_button_repositories();
 }
 
+/// React to the user selecting a new repository (on change for repository list)
 function on_repo_select_change(num)
 {
   var repo_select = $('#repo_name_' + num);
@@ -65,6 +95,7 @@ function on_repo_select_change(num)
   version_select.trigger('change');
 }
 
+/// Disable the wizard's buttons while something is being changed or requested
 function disable_wizard_buttons(prev)
 {
   prev = typeof prev !== 'undefined' ? prev : true;
@@ -75,6 +106,7 @@ function disable_wizard_buttons(prev)
   }
 }
 
+/// Enable the wizard's buttons once it is ok to continue to the next page
 function enable_wizard_buttons(prev)
 {
   prev = typeof prev !== 'undefined' ? prev : true;
@@ -85,6 +117,7 @@ function enable_wizard_buttons(prev)
   }
 }
 
+/// Enable or disable the wizard buttons based on the state
 function update_next_button_repositories()
 {
   if (get_selected_repo_names().length == 0)
@@ -97,6 +130,7 @@ function update_next_button_repositories()
   }
 }
 
+/// Update the view with new package list data
 function update_package_lists_for_entry(num, repo, package_names)
 {
   if ($('#repo_name_' + num).val() != repo)
@@ -116,8 +150,10 @@ function update_package_lists_for_entry(num, repo, package_names)
   });
 }
 
+/// Handle the package list after it has been calculated
 function get_package_list_for_remote_repo_cb(data)
 {
+  var data = JSON.parse(data);
   enable_wizard_buttons(false);
   if (data.status)
   {
@@ -136,6 +172,7 @@ function get_package_list_for_remote_repo_cb(data)
   update_package_lists_for_entry(data.repo_entry_number, data.repo, data.package_names);
 }
 
+/// Update the list of packages if they need to be
 function update_package_lists_and_fetch_if_needed()
 {
   $('.repo-entry').each(function(index, item) {
@@ -152,9 +189,9 @@ function update_package_lists_and_fetch_if_needed()
       var repo_vcs_type = item.find('.repo-vcs-li').text();
       var repo_vcs_url = item.find('.repo-url-li').text();
       var repo_vcs_branch = item.find('.repo-branch-li').text();
-      Dajaxice.prerelease_website.submit_jobs.get_package_list_for_remote_repo_ajax(
-        get_package_list_for_remote_repo_cb,
-        {
+      $.ajax({
+        url: '/get_package_list_for_remote_repo',
+        data: {
           'ros_distro': ros_distro,
           'repo': repo,
           'version': repo_version,
@@ -162,8 +199,13 @@ function update_package_lists_and_fetch_if_needed()
           'url': repo_vcs_url,
           'branch': repo_vcs_branch,
           'repo_entry_number': repo_num,
+        },
+        type: 'POST',
+        success: get_package_list_for_remote_repo_cb,
+        error: function(error) {
+          console.log(error.responseText);
         }
-      );
+      });
       $('#package_list_' + repo_num).html(
         '<h4>Loading package list...</h4>' +
         '<div class="loader" id="package_list_loader_' + repo_num + '" />'
@@ -178,6 +220,7 @@ function update_package_lists_and_fetch_if_needed()
   });
 }
 
+/// Update the view with the latest list of packages on change for repository or version
 function on_repo_version_select_change(num)
 {
   var repo_select = $('#repo_name_' + num);
@@ -206,6 +249,7 @@ function on_repo_version_select_change(num)
   update_package_lists_and_fetch_if_needed();
 }
 
+/// Create and return a form for a new repository
 function get_repository_entry(num)
 {
   var repo_help_msg = "";
@@ -258,6 +302,7 @@ function get_repository_entry(num)
   return e;
 }
 
+/// Get an array of repo names
 function get_selected_repo_names()
 {
   var selected_repos = new Array();
@@ -269,6 +314,7 @@ function get_selected_repo_names()
   return selected_repos;
 }
 
+/// Get a dict of repositories with the name as the key and the entry number as a subkey
 function get_selected_repos()
 {
   var dict = {};
@@ -435,9 +481,9 @@ function update_rdepends()
   });
   var rdepends_args = {
     'ros_distro': ros_distro,
-    'repo_list': selected_repositories,
+    'repo_list': JSON.stringify(selected_repositories),
     'level': $('#rdepends_level').val(),
-    'excludes': excludes,
+    'excludes': JSON.stringify(excludes),
   };
   var args_hash = JSON.stringify(rdepends_args);
   var rdepends = rdepends_cache[args_hash];
@@ -449,10 +495,16 @@ function update_rdepends()
     $('.spinedit i').hide();
     disable_wizard_buttons();
     rdepends_args['args_hash'] = args_hash;
-    Dajaxice.prerelease_website.submit_jobs.get_rdepends_by_level_and_excludes_ajax(
-      get_rdepends_by_level_and_excludes_cb,
-      rdepends_args
-    );
+    $.ajax({
+      url: '/get_rdepends_by_level_and_excludes',
+      data: rdepends_args,
+      dataType: 'json',
+      method: 'POST',
+      success: get_rdepends_by_level_and_excludes_cb,
+      error: function(error) {
+        console.log(error.responseText);
+      }
+    });
   }
   else
   {
@@ -570,7 +622,6 @@ $(document).ready(function() {
   });
   // Add handler for next action clicked on the wizard
   $('#prerelease_wizard').on('actionclicked.fu.wizard', function(evt, data) {
-    console.log(data);
     if (data.step == 1) // Select repositories
     {
 

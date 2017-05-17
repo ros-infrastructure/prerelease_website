@@ -1,20 +1,23 @@
 {% extends "base.html" %}
 
-{% block title %}Generate a local prerelease command for {{distro}}{% endblock %}
+{% block title %}Generate a local prerelease command for {{ distro }}{% endblock %}
 
 {% block js %}
 <link href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css" rel="stylesheet">
 <link href="//www.fuelcdn.com/fuelux/3.6.3/css/fuelux.min.css" rel="stylesheet">
-<link href="/static/css/bootstrap-spinedit.css" rel="stylesheet">
-<link href="/static/css/{{distro}}.css" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/bootstrap-spinedit.css') }}" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/' + distro + '.css') }}" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
 
 <div class="container">
   <div class="page-header">
-    <img class="pull-right" style="height: 100px;" src="/static/images/{{distro}}.png" />
-    <h1>Generate a Prerelease Command for {{distro}}</h1>
+    <img
+      class="pull-right" style="height: 100px;"
+      src="{{ url_for('static', filename='images/' + distro + '.png') }}"
+    />
+    <h1>Generate a Prerelease Command for {{ distro }}</h1>
     <p class="lead">
       This page will help you generate a command to run your prelease locally.
     </p>
@@ -175,7 +178,10 @@
     <p>
       This page helps you generate a command which you can run in the terminal on a Ubuntu machine which executes a "prerelease".<br/>
       To learn more about prereleases and what they do, see:
-      <a href="http://wiki.ros.org/bloom/Tutorials/PrereleaseTest?distro={{distro}}">http://wiki.ros.org/bloom/Tutorials/PrereleaseTest?distro={{distro}}</a>
+      <a
+        href="http://wiki.ros.org/bloom/Tutorials/PrereleaseTest?distro={{ distro }}">
+        http://wiki.ros.org/bloom/Tutorials/PrereleaseTest?distro={{ distro }}
+      </a>
     </p>
   </div>
 
@@ -184,30 +190,16 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.js"></script>
 <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 <script src="//www.fuelcdn.com/fuelux/3.6.3/js/fuelux.min.js"></script>
-<script src="/static/js/bootstrap-spinedit.js" type="text/javascript" charset="utf-8"></script>
-<script src="/static/js/generate_command.js" type="text/javascript" charset="utf-8"></script>
+<script src="{{ url_for('static', filename='js/bootstrap-spinedit.js') }}"></script>
+<script
+  src="{{ url_for('static', filename='js/generate_command.js') }}"
+  type="text/javascript"
+  charset="utf-8"
+></script>
 <script type="text/javascript">
   $(window).load(function() {
-    $('#rdepends_level').spinedit({
-        minimum: 0,
-        step: 1
-    });
-    $('#rdepends_level').on('change', function() {
-      console.log("here");
-      if ($('#rdepends_level').spinedit('value'))
-      {
-        update_rdepends();
-      }
-    });
-    $('#rdepends_level').on('keydown', function(e) {
-      console.log("here");
-      if (e.keyCode == 13 && $('#rdepends_level').spinedit('value'))
-      {
-        update_rdepends();
-      }
-    });
-    ros_distro = '{{distro}}';
-    load_repositories(ros_distro);
+    ros_distro = '{{ distro }}';
+    generate_command_on_window_load(ros_distro);
   });
 </script>
 
