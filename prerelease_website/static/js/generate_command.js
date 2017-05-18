@@ -22,6 +22,8 @@ function generate_command_on_window_load(ros_distro)
   });
   // load and initialize the list of repositories the user will choose from
   load_repositories(ros_distro);
+  // global storage for the package_names of custom repositories by repo entry number
+  custom_repo_package_names_by_repo_num = {};
 }
 
 /// Load the repositories list based on the ros distro with an ajax request
@@ -65,6 +67,7 @@ function load_repositories(ros_distro)
 /// Remove a repository entry by number (used in on click event for the '-' button)
 function remove_repository_entry(num)
 {
+  clear_repo_info(num);
   $('#repo_entry_' + num).remove();
   update_repo_selects();
   update_next_button_repositories();
@@ -131,8 +134,9 @@ function update_next_button_repositories()
 }
 
 /// Update the view with new package list data
-function update_package_lists_for_entry(num, repo, package_names)
+function update_package_lists_for_entry(num, package_names)
 {
+  var repo = get_repo_info(num).name;
   if ($('#repo_name_' + num).val() != repo)
   {
     // Request out of date, do not update the field
@@ -148,6 +152,85 @@ function update_package_lists_for_entry(num, repo, package_names)
     }
     return result;
   });
+}
+
+/// Get the package_names for a repository entry based on the number
+function get_package_names(repo_num)
+{
+  var repo_entry_element = $('#repo_entry_' + repo_num);
+  if (repo_entry_element.hasClass('custom-repo-entry'))
+  {
+    return custom_repo_package_names_by_repo_num[repo_num];
+  }
+  else
+  {
+    var repo_name = repo_entry_element.find('.repo-name-select').val();
+    var repo_version_index = repo_entry_element.find('.repo-version-select')[0].selectedIndex;
+    return repositories[repo_name].package_names[repo_version_index];
+  }
+}
+/// Set the package_names for a repository entry based on the number
+function set_package_names(repo_num, package_names)
+{
+  var repo_entry_element = $('#repo_entry_' + repo_num);
+  if (repo_entry_element.hasClass('custom-repo-entry'))
+  {
+    custom_repo_package_names_by_repo_num[repo_num] = package_names;
+  }
+  else
+  {
+    var repo_name = repo_entry_element.find('.repo-name-select').val();
+    var repo_version_index = repo_entry_element.find('.repo-version-select')[0].selectedIndex;
+    repositories[repo_name].package_names[repo_version_index] = package_names;
+  }
+}
+
+/// Get repo info dictionary based on repo number
+function get_repo_info(repo_num)
+{
+  var repo_data = $('#repo_data_' + repo_num);
+  var data = {
+    'name': repo_data.find('.repo-name-li').text(),
+    'vcs': repo_data.find('.repo-vcs-li').text(),
+    'url': repo_data.find('.repo-url-li').text(),
+    'branch': repo_data.find('.repo-branch-li').text(),
+    'version': repo_data.find('.repo-version-li').text(),
+    'is_custom': (repo_data.find('.repo-is-custom-li').text() == 'true'),
+  };
+  return data;
+}
+
+/// Set repo info based on repo number and info data
+function set_repo_info(repo_num, repo_name, repo_vcs_type, repo_url, repo_branch, repo_version)
+{
+  // figure out if it is custom repo or not
+  var repo_entry_element = $('#repo_entry_' + repo_num);
+  var is_custom_repo = 'false';
+  if (repo_entry_element.hasClass('custom-repo-entry')) {
+    is_custom_repo = 'true';
+  }
+  // store repo info in the repo_data div
+  var repo_data = $('#repo_data_' + repo_num);
+  repo_data[0].innerHTML = "";
+  repo_data.append('<span class="repo-name-li" style="display: none;">' + repo_name + '</span>');
+  repo_data.append('<span class="label label-success repo-vcs-li">' + repo_vcs_type + '</span>');
+  repo_data.append(' ');
+  repo_data.append('<span class="repo-url-li">' +
+                   '<a href="' + repo_url + '">' + repo_url + '</a>' +
+                   '</span>');
+  repo_data.append(' ');
+  repo_data.append('<span class="label label-default repo-branch-li">' + repo_branch + '</span>');
+  repo_data.append('<span class="repo-version-li" style="display: none;">' + repo_version + '</span>');
+  repo_data.append('<span class="repo-is-custom-li" style="display: none;">' + is_custom_repo + '</span>');
+  repo_data.show();
+}
+
+/// Clear the repo info from the repository entry
+function clear_repo_info(repo_num)
+{
+  var repo_data = $('#repo_data_' + repo_num);
+  repo_data[0].innerHTML = "";
+  repo_data.hide();
 }
 
 /// Handle the package list after it has been calculated
@@ -167,84 +250,77 @@ function get_package_list_for_remote_repo_cb(data)
     });
     return;
   }
-  var repo_version_index = $('#repo_version_' + data.repo_entry_number)[0].selectedIndex;
-  repositories[data.repo].package_names[repo_version_index] = data.package_names;
-  update_package_lists_for_entry(data.repo_entry_number, data.repo, data.package_names);
+  set_package_names(data.repo_entry_number, data.package_names);
+  update_package_lists_for_entry(data.repo_entry_number, data.package_names);
 }
 
 /// Update the list of packages if they need to be
 function update_package_lists_and_fetch_if_needed()
 {
   $('.repo-entry').each(function(index, item) {
-    item = $(item);
-    var repo = item.find('.repo-name-select').val();
-    var repo_num = item.attr('entry-num');
-    var repo_version_index = $('#repo_version_' + repo_num)[0].selectedIndex;
-    var package_names = repositories[repo].package_names[repo_version_index];
+    var repo_num = $(item).attr('entry-num');
+    var package_names = get_package_names(repo_num);
     if (!package_names)
     {
       // There is not package data yet, show a loading message and kick off the ajax call.
-      disable_wizard_buttons(false);
-      var repo_version = $('#repo_version_' + repo_num).val();
-      var repo_vcs_type = item.find('.repo-vcs-li').text();
-      var repo_vcs_url = item.find('.repo-url-li').text();
-      var repo_vcs_branch = item.find('.repo-branch-li').text();
-      $.ajax({
-        url: '/get_package_list_for_remote_repo',
-        data: {
-          'ros_distro': ros_distro,
-          'repo': repo,
-          'version': repo_version,
-          'vcs': repo_vcs_type,
-          'url': repo_vcs_url,
-          'branch': repo_vcs_branch,
-          'repo_entry_number': repo_num,
-        },
-        type: 'POST',
-        success: get_package_list_for_remote_repo_cb,
-        error: function(error) {
-          console.log(error.responseText);
-        }
-      });
-      $('#package_list_' + repo_num).html(
-        '<h4>Loading package list...</h4>' +
-        '<div class="loader" id="package_list_loader_' + repo_num + '" />'
-      ).show();
-      $('#package_list_loader_' + repo_num).loader();
+      update_package_lists(repo_num);
     }
     else
     {
       // The package list is there, update the entry to display it.
-      update_package_lists_for_entry(repo_num, repo, package_names);
+      update_package_lists_for_entry(repo_num, package_names);
     }
   });
 }
+
+/// Update the list of packages
+function update_package_lists(repo_num)
+{
+  var repo_info = get_repo_info(repo_num);
+  disable_wizard_buttons(false);
+  $.ajax({
+    url: '/get_package_list_for_remote_repo',
+    data: {
+      'ros_distro': ros_distro,
+      'repo': repo_info.name,
+      'version': repo_info.version,
+      'vcs': repo_info.vcs,
+      'url': repo_info.url,
+      'branch': repo_info.branch,
+      'repo_entry_number': repo_num,
+    },
+    type: 'POST',
+    success: get_package_list_for_remote_repo_cb,
+    error: function(error) {
+      console.log(error.responseText);
+    }
+  });
+  $('#package_list_' + repo_num).html(
+    '<h4>Loading package list...</h4>' +
+    '<div class="loader" id="package_list_loader_' + repo_num + '" />'
+  ).show();
+  $('#package_list_loader_' + repo_num).loader();
+}
+
 
 /// Update the view with the latest list of packages on change for repository or version
 function on_repo_version_select_change(num)
 {
   var repo_select = $('#repo_name_' + num);
   var version_select = $('#repo_version_' + num);
-  var repo_data = $('#repo_data_' + num);
   if (repo_select[0].selectedIndex == 0)
   {
-    repo_data[0].innerHTML = "";
-    repo_data.hide();
+    // if the user selected the default option in the select input (not actually a repo)
+    clear_repo_info(num);
     update_next_button_repositories();
     return;
   }
+
   var repository_name = repo_select.val();
   var repo = repositories[repository_name];
   var i = version_select[0].selectedIndex;
-  repo_data[0].innerHTML = "";
-  repo_data.append('<span class="label label-success repo-vcs-li">' + repo.vcs[i] + '</span>');
-  repo_data.append(' ');
-  repo_data.append('<span class="repo-url-li">' +
-                   '<a href="' + repo.url[i] + '">' + repo.url[i] + '</a>' +
-                   '</span>');
-  repo_data.append(' ');
-  repo_data.append('<span class="label label-default repo-branch-li">' + repo.branch[i] + '</span>');
-  repo_data.show();
+  set_repo_info(num, repository_name, repo.vcs[i], repo.url[i], repo.branch[i], version_select.val());
+
   update_next_button_repositories();
   update_package_lists_and_fetch_if_needed();
 }
@@ -302,33 +378,155 @@ function get_repository_entry(num)
   return e;
 }
 
-/// Get an array of repo names
-function get_selected_repo_names()
+/// Update the view with the edited custom repo info and the latest list of packages when saved
+function save_custom_repository_entry(num)
 {
-  var selected_repos = new Array();
-  $('.repo-name-select').each(function(index, element) {
-    if (element.selectedIndex != 0) {
-      selected_repos[index] = element.value;
-    }
-  });
-  return selected_repos;
+  var repo_text = $('#repo_name_' + num);
+  repo_text.prop('disabled', true);
+  var type_select = $('#repo_type_' + num);
+  type_select.prop('disabled', true);
+  type_select.hide();
+  var branch_text = $('#repo_branch_' + num);
+  branch_text.prop('disabled', true);
+  branch_text.hide();
+  var url_text = $('#repo_url_' + num);
+  url_text.prop('disabled', true);
+  url_text.hide();
+  $('#save-custom-repo-' + num).hide();
+  $('#edit-custom-repo-' + num).show();
+
+  var repo_data = $('#repo_data_' + num);
+  var repo_name = repo_text.val();
+  var repo_type = type_select.val();
+  var repo_url = url_text.val();
+  var repo_branch = branch_text.val();
+  set_repo_info(num, repo_name, repo_type, repo_url, repo_branch, null);
+
+  update_next_button_repositories();
+  update_package_lists(num);
 }
 
-/// Get a dict of repositories with the name as the key and the entry number as a subkey
+function edit_custom_repository_entry(num)
+{
+  var repo_text = $('#repo_name_' + num);
+  repo_text.prop('disabled', false);
+  var type_select = $('#repo_type_' + num);
+  type_select.prop('disabled', false);
+  type_select.show();
+  var branch_text = $('#repo_branch_' + num);
+  branch_text.prop('disabled', false);
+  branch_text.show();
+  var url_text = $('#repo_url_' + num);
+  url_text.prop('disabled', false);
+  url_text.show();
+  $('#save-custom-repo-' + num).show();
+  $('#edit-custom-repo-' + num).hide();
+
+  clear_repo_info(num);
+}
+
+/// Create and return a form for a new custom repository
+function get_custom_repository_entry(num)
+{
+  var repo_help_msg = "";
+  repo_help_msg += "The reposiory name, vcs type, url, and version tuple " +
+                   "is used to fetch your custom repository.";
+  var e = '';
+  e += '<div class="repo-entry custom-repo-entry" id="repo_entry_' + num + '"';
+  e += '     entry-num="' + num + '">';
+  e += '  <form class="form-inline">';
+  e += '    <div class="form-group">';
+  e += '      <button type="button" class="btn btn-danger"';
+  e += '              id="rm-repo-' + num + '"';
+  e += '              onclick="remove_repository_entry(' + num + ');">';
+  e += '        <span class="glyphicon glyphicon-remove-sign"';
+  e += '              aria-hidden="true">';
+  e += '        </span>';
+  e += '      </button>';
+  e += '      <input type="text"';
+  e += '             class="form-control custom-repo-name"';
+  e += '             placeholder="custom repository name"';
+  e += '             id="repo_name_' + num + '"/>';
+  e += '    </div>';
+  e += '    <div class="form-group">';
+  e += '      <select class="form-control custom-repo-vcs-type"';
+  e += '              id="repo_type_' + num + '">';
+  e += '        <option>git</option>';
+  e += '        <option>hg</option>';
+  e += '        <option>svn</option>';
+  e += '      </select>';
+  e += '      <input type="text"';
+  e += '             class="form-control custom-repo-url"';
+  e += '             placeholder="custom repository url"';
+  e += '             id="repo_url_' + num + '"/>';
+  e += '      <input type="text"';
+  e += '             class="form-control custom-repo-branch"';
+  e += '             placeholder="custom repository branch"';
+  e += '             id="repo_branch_' + num + '"/>';
+  e += '    </div>';
+  e += '    <button type="button" class="btn btn-success"';
+  e += '            id="save-custom-repo-' + num + '"';
+  e += '            onclick="save_custom_repository_entry(' + num + ');">';
+  e += '      <span class="glyphicon glyphicon-ok"';
+  e += '            aria-hidden="true">';
+  e += '      </span>';
+  e += '    </button>';
+  e += '    <button type="button" class="btn" style="display: none;"';
+  e += '            id="edit-custom-repo-' + num + '"';
+  e += '            onclick="edit_custom_repository_entry(' + num + ');">';
+  e += '      <span class="glyphicon glyphicon-pencil"';
+  e += '            aria-hidden="true">';
+  e += '      </span>';
+  e += '    </button>';
+  e += '    <button type="button" class="btn btn-info"';
+  e += '            data-toggle="tooltip" data-placement="right"';
+  e += '            title="' + repo_help_msg + '">';
+  e += '      <span class="glyphicon glyphicon-question-sign"';
+  e += '            aria-hidden="true">';
+  e += '      </span>';
+  e += '    </button>';
+  e += '    <label class="repo-data" style="display: none;"';
+  e += '        id="repo_data_' + num + '">';
+  e += '    </label>';
+  e += '  </form>';
+  e += '  <div class="package-list well well-sm" style="display: none;"';
+  e += '       id="package_list_' + num + '" />';
+  e += '</div>';
+  return e;
+}
+
+/// Get a dict of selected repositories with the name as the key
 function get_selected_repos()
 {
   var dict = {};
   $('.repo-entry').each(function(index, element) {
     var item = $(element);
-    var repo = item.find('.repo-name-select').val();
     var repo_num = item.attr('entry-num');
-    if ($('.repo-name-select', this).selectedIndex != 0) {
-      dict[repo] = {
-        entry_num: repo_num
+    var repo_info = get_repo_info(repo_num);
+    // if custom repo or if standard repo and not the first selection
+    if ($(this).hasClass('custom-repo-entry') || $('.repo-name-select', this).selectedIndex != 0) {
+      dict[repo_info.name] = {
+        entry_num: repo_num,
+        repo_info: repo_info,
       }
     }
   });
   return dict;
+}
+
+/// Get an array of repo names
+function get_selected_repo_names()
+{
+  var selected_repos = get_selected_repos();
+  var selected_repo_names = new Array();
+  for (var selected_repo in selected_repos) {
+    if (!selected_repos.hasOwnProperty(selected_repo))
+    {
+      continue;
+    }
+    selected_repo_names.push(selected_repo);
+  }
+  return selected_repo_names;
 }
 
 function get_dictionary_keys_sorted(dict)
@@ -460,19 +658,15 @@ function update_rdepends()
   var selected_repositories = {};
   $('.repo-entry').each(function(index, item) {
     var item = $(item);
-    var repo = item.find('.repo-name-select').val();
-    var repo_version = item.find('.repo-version-select').val();
-    var repo_version_index = item.find('.repo-version-select')[0].selectedIndex;
-    var repo_vcs_type = item.find('.repo-vcs-li').text();
-    var repo_url_type = item.find('.repo-url-li').text();
-    var repo_branch_type = item.find('.repo-branch-li').text();
-    selected_repositories[repo] = {
-      'name': repo,
-      'version': repo_version,
-      'vcs': repo_vcs_type,
-      'url': repo_url_type,
-      'branch': repo_branch_type,
-      'package_names': repositories[repo].package_names[repo_version_index],
+    var repo_num = item.attr('entry-num');
+    var repo_info = get_repo_info(repo_num);
+    selected_repositories[repo_info.name] = {
+      'name': repo_info.name,
+      'version': repo_info.version,
+      'vcs': repo_info.vcs,
+      'url': repo_info.url,
+      'branch': repo_info.branch,
+      'package_names': get_package_names(repo_num),
     };
   });
   var excludes = new Array();
@@ -532,6 +726,7 @@ function update_command_output()
 {
   var os_version = $('#os_version').val();
   var selected_repos = get_selected_repos();
+  var package_specific_selected_repos = {};
   var custom_selected_repos = {};
   var non_custom_selected_repo_names = Array();
   for (var key in selected_repos) {
@@ -539,10 +734,16 @@ function update_command_output()
       continue;
     }
     var repo_num = selected_repos[key].entry_num;
-    var repo_version_index = $('#repo_version_' + repo_num)[0].selectedIndex;
-    if (repositories[key].branch[repo_version_index].includes("{package}")) {
+    var repo_info = get_repo_info(repo_num);
+    if (repo_info.is_custom)
+    {
       custom_selected_repos[key] = selected_repos[key];
-    } else {
+    }
+    else if (repo_info.branch.includes("{package}"))
+    {
+      package_specific_selected_repos[key] = selected_repos[key];
+    } else
+    {
       non_custom_selected_repo_names.push(key);
     }
   }
@@ -575,17 +776,31 @@ function update_command_output()
       custom_repo_in_msg = true;
     }
     var repo_num = custom_selected_repos[repo_name].entry_num;
-    var repo_version_index = $('#repo_version_' + repo_num)[0].selectedIndex;
-    var packages = repositories[repo_name].package_names[repo_version_index];
-    var branch = repositories[repo_name].branch[repo_version_index];
-    var vcs = repositories[repo_name].vcs[repo_version_index];
-    var url = repositories[repo_name].url[repo_version_index];
+    var repo_info = get_repo_info(repo_num);
+    msg +=
+      '    ' +
+      repo_info.name + '__custom-' + repo_num + ':' +
+      repo_info.vcs + ':' +
+      repo_info.url + ':' +
+      repo_info.branch + ' \\<br/>';
+  }
+  for (var repo_name in package_specific_selected_repos) {
+    if (!package_specific_selected_repos.hasOwnProperty(repo_name)) {
+      continue;
+    }
+    if (!custom_repo_in_msg) {
+      msg += '  --custom-repo \\<br/>';
+      custom_repo_in_msg = true;
+    }
+    var repo_num = package_specific_selected_repos[repo_name].entry_num;
+    var repo_info = get_repo_info(repo_num);
+    var packages = get_package_names(repo_num);
     for (var j = 0; j < packages.length; j++) {
       var package_name = packages[j];
-      var package_specific_branch = branch.replace("{package}", package_name);
+      var package_specific_branch = repo_info.branch.replace("{package}", package_name);
       msg +=
         '    ' +
-        package_name + ':' + vcs + ':' + url + ':' + package_specific_branch + ' \\<br/>';
+        package_name + ':' + repo_info.vcs + ':' + repo_info.url + ':' + package_specific_branch + ' \\<br/>';
     }
   }
   msg +=
@@ -619,6 +834,17 @@ $(document).ready(function() {
     // $('[data-toggle="popover"]').popover();
     $('[data-toggle="tooltip"]').tooltip();
     $('.repo-name-select').focus();
+  });
+  // Add handler for "add-custom-repository"
+  $(".add-custom-repository").click(function(evnt) {
+    evnt.preventDefault();
+    var new_element = get_custom_repository_entry(number_of_repositories);
+    $('.repositories').append(new_element);
+    number_of_repositories += 1;
+    update_repo_selects();
+    update_next_button_repositories();
+    $('[data-toggle="tooltip"]').tooltip();
+    $('.custom-repo-name').focus();
   });
   // Add handler for next action clicked on the wizard
   $('#prerelease_wizard').on('actionclicked.fu.wizard', function(evt, data) {
