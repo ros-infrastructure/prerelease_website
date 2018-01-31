@@ -39,15 +39,15 @@ function load_repositories(ros_distro)
       var ubuntu_platforms = repo_list.release_platforms.ubuntu;
       if (ubuntu_platforms)
       {
-        var prefered_list = ['trusty', 'xenial'];
+        var preferred_list = ['trusty', 'xenial', 'bionic'];
         $.each(ubuntu_platforms, function (index, item) {
-          if ($.inArray(item, prefered_list) != -1)
+          if ($.inArray(item, preferred_list) != -1)
           {
             $('#os_version').append('<option>' + item + '</option>');
           }
         });
         $.each(ubuntu_platforms, function (index, item) {
-          if ($.inArray(item, prefered_list) == -1)
+          if ($.inArray(item, preferred_list) == -1)
           {
             $('#os_version').append('<option>' + item + '</option>');
           }
