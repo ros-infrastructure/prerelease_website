@@ -49,8 +49,8 @@ class WetRosDistro(object):
             index = get_index(get_index_url())
             self._distribution_file = get_distribution_cache(index, distro).distribution_file
         except:
-            logger.error("Could not load rosdistro distribution cache")
-            self._distribution_file = None
+            logger.error("Could not load rosdistro distribution cache for '%s'" % (distro))
+            raise
 
     def get_release_platforms(self):
         return self._distribution_file.release_platforms

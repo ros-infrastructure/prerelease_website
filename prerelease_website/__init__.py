@@ -7,6 +7,7 @@ from flask import render_template
 from .ajax import get_package_list_for_remote_repo_ajax
 from .ajax import get_rdepends_by_level_and_excludes_ajax
 from .ajax import get_repo_list_ajax
+from .ajax import check_distro_ajax
 
 app = Flask(__name__)
 
@@ -18,7 +19,10 @@ def index():
 
 @app.route('/<distro>')
 def distro(distro):
-    return render_template('generate_command.html', distro=distro)
+    if check_distro_ajax(distro):
+        return render_template('generate_command.html', distro=distro)
+    else:
+        return render_template('404.html', distro=distro), 404
 
 
 @app.route('/get_repo_list/<distro>')
