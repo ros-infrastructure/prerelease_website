@@ -164,7 +164,7 @@ def get_rdepends_by_level_and_excludes_ajax(
             'err': err,
         })
     result = {}
-    result['rdepends'] = json.loads(out)
+    result['rdepends'] = json.loads(out.decode('utf-8'))
     result['args_hash'] = args_hash
     return json.dumps(result)
 

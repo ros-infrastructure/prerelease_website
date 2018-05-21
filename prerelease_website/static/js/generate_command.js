@@ -43,14 +43,21 @@ function load_repositories(ros_distro)
         $.each(ubuntu_platforms, function (index, item) {
           if ($.inArray(item, preferred_list) != -1)
           {
-            $('#os_version').append('<option>' + item + '</option>');
+            $('#os_version').append('<option>ubuntu ' + item + '</option>');
           }
         });
         $.each(ubuntu_platforms, function (index, item) {
           if ($.inArray(item, preferred_list) == -1)
           {
-            $('#os_version').append('<option>' + item + '</option>');
+            $('#os_version').append('<option>ubuntu ' + item + '</option>');
           }
+        });
+      }
+      var debian_platforms = repo_list.release_platforms.debian;
+      if (debian_platforms)
+      {
+        $.each(debian_platforms, function (index, item) {
+          $('#os_version').append('<option>debian ' + item + '</option>');
         });
       }
       $('#ros_buildfarm_url').placard('setValue', repo_list['build_farm_config_url']);
@@ -429,7 +436,7 @@ function edit_custom_repository_entry(num)
 function get_custom_repository_entry(num)
 {
   var repo_help_msg = "";
-  repo_help_msg += "The reposiory name, vcs type, url, and version tuple " +
+  repo_help_msg += "The repository name, vcs type, url, and version tuple " +
                    "is used to fetch your custom repository.";
   var e = '';
   e += '<div class="repo-entry custom-repo-entry" id="repo_entry_' + num + '"';
@@ -724,6 +731,8 @@ function update_rdepends()
 
 function update_command_output()
 {
+  // The os_version variable comes back from the select looking like:
+  // 'ubuntu bionic'.  We can use this directly below
   var os_version = $('#os_version').val();
   var selected_repos = get_selected_repos();
   var package_specific_selected_repos = {};
@@ -762,7 +771,7 @@ function update_command_output()
     'cd /tmp/prerelease_job</br>' +
     'generate_prerelease_script.py \\<br/>' +
     '  ' + build_farm_config_url + ' \\<br/>' +
-    '  ' + ros_distro + ' default ubuntu ' + os_version + ' amd64 \\<br/>';
+    '  ' + ros_distro + ' default ' + os_version + ' amd64 \\<br/>';
   if (non_custom_selected_repo_names.length > 0) {
     msg += '  ' + non_custom_selected_repo_names.join(' ') + ' \\<br/>';
   }
