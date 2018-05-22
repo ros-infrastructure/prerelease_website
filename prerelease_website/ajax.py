@@ -11,7 +11,6 @@ import rospkg
 import vcstools
 import yaml
 
-from .models import DryRosDistro
 from .models import WetRosDistro
 
 logger = logging.getLogger('prerelease')
@@ -45,10 +44,6 @@ def check_distro_ajax(ros_distro):
 
 
 def get_repo_list_ajax(ros_distro):
-    dry_distro = DryRosDistro(ros_distro)
-    repo_list = dry_distro.get_info()
-    logger.info("Got dry repo list")
-
     try:
         wet_distro = WetRosDistro(ros_distro)
     except Exception as e:
@@ -57,11 +52,10 @@ def get_repo_list_ajax(ros_distro):
             'message': str(e),
         })
 
+    repo_list = {}
     for name, d in wet_distro.get_info().items():
-        if name in repo_list:
-            logger.info("%s is in both wet and dry rosdistro!!!!" % name)
-        else:
-            repo_list[name] = d
+        repo_list[name] = d
+
     logger.info("Got wet repo list")
 
     return json.dumps({

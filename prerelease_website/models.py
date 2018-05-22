@@ -6,32 +6,6 @@ import rospkg.distro
 logger = logging.getLogger('prerelease')
 
 
-class DryRosDistro(object):
-    def __init__(self, distro):
-        self.distro = distro
-        if distro == 'groovy':
-            self.distro_obj = rospkg.distro.load_distro(rospkg.distro.distro_uri(distro))
-        else:
-            self.distro_obj = None
-
-    def get_info(self):
-        res = {}
-        if not self.distro_obj:
-            return res
-        for name, s in self.distro_obj.stacks.iteritems():
-            if s.vcs_config.type == 'svn':
-                url = s.vcs_config.anon_dev
-                branch = ""
-            else:
-                url = s.vcs_config.repo_uri
-                branch = s.vcs_config.dev_branch
-            res[name] = {'distro': self.distro + "_dry",
-                         'version': ["devel"],
-                         'url': [url],
-                         'branch': [branch]}
-        return res
-
-
 def has_release(repo):
     return getattr(repo, 'release_repository', None) is not None
 
