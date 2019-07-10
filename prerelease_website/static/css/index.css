@@ -21,7 +21,7 @@ html, body {
   height: 100%;
 }
 
-.indigo-column, .kinetic-column, .melodic-column {
+.kinetic-column, .melodic-column {
   float: none;
   display: table-cell;
 }
@@ -37,25 +37,11 @@ html, body {
   margin: 0 auto;
 }
 
-.indigo-column
-{
-  height: 100%;
-  background: #011437;
-  width: 33%;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #eee;
-  border-right: 1px solid #eee;
-}
-
-.indigo-column a {
-  color: #46B6EF;
-}
-
 .kinetic-column
 {
   height: 100%;
   background: #000000;
-  width: 33%;
+  width: 50%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
@@ -69,7 +55,7 @@ html, body {
 {
   height: 100%;
   background: #1a163b;
-  width: 33%;
+  width: 50%;
   border-top: 1px solid #eee;
   border-bottom: 1px solid #eee;
   border-left: 1px solid #eee;
