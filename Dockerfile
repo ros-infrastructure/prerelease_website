@@ -2,7 +2,7 @@ FROM centos:7
 
 # RUN apt-get update && apt-get install -y python-flask python-rosinstall-generator python-vcstools python-ros-buildfarm
 RUN yum -y update 
-RUN yum -y install python3-pip && yum clean all
+RUN yum -y install python3-pip git mercurial subversion && yum clean all
 RUN pip3 install -U Flask ros_buildfarm rosinstall_generator vcstools
 
 COPY . /app
