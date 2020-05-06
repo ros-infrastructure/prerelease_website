@@ -39,7 +39,7 @@ function load_repositories(ros_distro)
       var ubuntu_platforms = repo_list.release_platforms.ubuntu;
       if (ubuntu_platforms)
       {
-        var preferred_list = ['trusty', 'xenial', 'bionic'];
+        var preferred_list = ['xenial', 'bionic', 'focal'];
         $.each(ubuntu_platforms, function (index, item) {
           if ($.inArray(item, preferred_list) != -1)
           {
