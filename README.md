@@ -10,7 +10,7 @@ Setup
 
 To run this website, you'll need to first setup a development environment.
 
-This project requires Python 2.6 (as that is what is on our old web server).
+This project requires Python 2.7 (as that is what is on our old web server).
 
 virtualenv
 ~~~~~~~~~~
