@@ -8,7 +8,7 @@ import traceback
 
 from catkin_pkg.packages import find_packages
 import rospkg
-import vcstools
+from vcstool.commands.import_ import main as vcs_import_main
 import yaml
 
 from .models import DryRosDistro
@@ -67,8 +67,10 @@ def get_package_list_for_remote_repo(
         logger.info("Cloning '{0}' from '{1}' @ '{2}' with '{3}'...".format(
             repo, url, branch, vcs
         ))
-        client = vcstools.get_vcs_client(vcs, tmp_dir)
-        if not client.checkout(url, version=branch, shallow=True):
+        repos_file = os.path.join(tmp_dir, repo + '.repo')
+        _write_repos_file(repos_file, repo, vcs, url, branch)
+        rc = vcs_import_main(['--input', repos_file, '--shallow', tmp_dir])
+        if rc:
             raise RuntimeError(
                 "Failed to checkout branch '{0}' from '{1}'"
                 .format(branch, url)
@@ -77,11 +79,26 @@ def get_package_list_for_remote_repo(
         pkg_names = [pkg.name for pth, pkg in find_packages(tmp_dir).items()]
         if version == 'latest':
             # Also consider ignored list
-            client.update(version='master')
+            _write_repos_file(repos_file, repo, vcs, url, 'master')
+            rc = vcs_import_main(['--input', repos_file, '--shallow', tmp_dir])
+            if rc:
+                raise RuntimeError(
+                    "Failed to checkout branch 'master' from '{1}'"
+                    .format(branch, url)
+                )
             if os.path.exists(ros_distro + '.ignored'):
                 with open(ros_distro + '.ignored', 'r') as f:
                     pkgs_to_ignore = [l.strip() for l in f.read().split() if l]
         return [p for p in pkg_names if p not in pkgs_to_ignore]
+
+
+def _write_repos_file(path, repo, vcs, url, branch):
+    with open(path, 'w') as h:
+        h.write('repositories:\n')
+        h.write('  %s:\n' % repo)
+        h.write('    type: %s\n' % vcs)
+        h.write('    url: %s\n' % url)
+        h.write('    version: %s\n' % branch)
 
 
 def get_package_list_for_remote_repo_ajax(

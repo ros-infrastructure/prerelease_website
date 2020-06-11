@@ -33,7 +33,7 @@ $ pip install -U Flask
 Install the domain (ROS) specific dependencies:
 
 ```
-$ pip install -U ros_buildfarm rosinstall_generator vcstools
+$ pip install -U ros_buildfarm rosinstall_generator vcstool
 ```
 
 Running Locally
