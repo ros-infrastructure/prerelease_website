@@ -11,7 +11,6 @@ import rospkg
 from vcstool.commands.import_ import main as vcs_import_main
 import yaml
 
-from .models import DryRosDistro
 from .models import WetRosDistro
 
 logger = logging.getLogger('prerelease')
@@ -36,17 +35,27 @@ class temporary_directory(object):
             os.chdir(self.original_cwd)
 
 
-def get_repo_list_ajax(ros_distro):
-    dry_distro = DryRosDistro(ros_distro)
-    repo_list = dry_distro.get_info()
-    logger.info("Got dry repo list")
+def check_distro_ajax(ros_distro):
+    try:
+        wet_distro = WetRosDistro(ros_distro)
+        return True
+    except Exception as e:
+        return False
 
-    wet_distro = WetRosDistro(ros_distro)
+
+def get_repo_list_ajax(ros_distro):
+    try:
+        wet_distro = WetRosDistro(ros_distro)
+    except Exception as e:
+        return json.dumps({
+            'status': 500,
+            'message': str(e),
+        })
+
+    repo_list = {}
     for name, d in wet_distro.get_info().items():
-        if name in repo_list:
-            logger.info("%s is in both wet and dry rosdistro!!!!" % name)
-        else:
-            repo_list[name] = d
+        repo_list[name] = d
+
     logger.info("Got wet repo list")
 
     return json.dumps({
