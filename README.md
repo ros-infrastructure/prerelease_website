@@ -18,7 +18,7 @@ virtualenv
 Next use `virtualenv` to create a virtualenv:
 
 ```
-$ python -m virutalenv venv
+$ python -m virtualenv venv
 ```
 
 Dependencies
