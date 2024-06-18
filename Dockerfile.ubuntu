@@ -1,0 +1,9 @@
+FROM ros:melodic
+
+RUN apt-get update && apt-get install -y python-flask python-rosinstall-generator python-vcstools python-ros-buildfarm
+
+COPY . /app
+
+WORKDIR /app
+
+CMD PYTHONPATH=/app FLASK_DEBUG=1 FLASK_APP=prerelease_website python -m flask run
