@@ -1,0 +1,11 @@
+on:
+  workflow_dispatch:
+  
+            
+jobs:
+  bootstrap:
+    runs-on: ubuntu-22.04
+    steps:
+    - name: helloworld
+      run: |
+        echo "Hello World"
