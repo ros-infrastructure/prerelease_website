@@ -8,7 +8,7 @@ Flask==1.1.2
 gunicorn==19.10.0
 itsdangerous==1.1.0
 Jinja2==2.11.3
-MarkupSafe==1.1.1
+MarkupSafe==2.1.5
 pyparsing==2.4.7
 python-dateutil==2.8.1
 PyYAML==5.4.1
