@@ -4,7 +4,7 @@ configparser==4.0.2
 distro==1.5.0
 docutils==0.16
 empy==3.3.4
-Flask==1.1.2
+Flask==3.0.3
 gunicorn==19.10.0
 itsdangerous==1.1.0
 Jinja2==2.11.3
