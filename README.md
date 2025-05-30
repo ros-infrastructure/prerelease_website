@@ -1,3 +1,13 @@
+Archived - ROS 1 prelease.ros.org website
+=========================================
+
+This repository is the source code for prerelease.ros.org.
+This website helped ROS 1 maintainers test if their ROS 1 packages broke any downstream packages before making a new release.
+The documentation for this tool was at https://wiki.ros.org/regression_tests
+
+[ROS 1 officially reached end of life on May 31st, 2025](https://bit.ly/NoeticEOL).
+
+
 Flask application for prerelease.ros.org
 ========================================
 
